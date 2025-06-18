@@ -16,6 +16,8 @@ final class Kekspay_Block_Checkout extends AbstractPaymentMethodType {
 	}
 
 	public function get_payment_method_script_handles() {
+		static $localized = false;
+
 		wp_register_script(
 			'kekspay-blocks-script',
 			KEKSPAY_DIR_URL . 'assets/dist/js/kekspay-blocks.js',
@@ -30,13 +32,17 @@ final class Kekspay_Block_Checkout extends AbstractPaymentMethodType {
 			true
 		);
 
-		wp_localize_script(
-			'kekspay-blocks-script',
-			'kekspayBlocksData',
-			[
-				'kekspayID' => KEKSPAY_PLUGIN_ID,
-			]
-		);
+		if ( ! $localized ) {
+			wp_localize_script(
+				'kekspay-blocks-script',
+				'kekspayBlocksData',
+				[
+					'kekspayID' => KEKSPAY_PLUGIN_ID,
+				]
+			);
+
+			$localized = true;
+		}
 
 		return [ 'kekspay-blocks-script' ];
 	}

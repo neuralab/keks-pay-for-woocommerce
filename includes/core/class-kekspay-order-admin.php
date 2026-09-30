@@ -29,8 +29,19 @@ if ( ! class_exists( 'Kekspay_Order_Admin' ) ) {
 			}
 
 			$screen = get_current_screen();
+			if ( ! $screen ) {
+				return;
+			}
+
+			$order_id = 0;
 			if ( 'post' === $screen->base && 'shop_order' === $screen->id ) {
-				$order = wc_get_order( get_the_ID() );
+				$order_id = get_the_ID();
+			} elseif ( 'woocommerce_page_wc-orders' === $screen->id && isset( $_GET['id'] ) ) {
+				$order_id = absint( wp_unslash( $_GET['id'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			}
+
+			if ( $order_id ) {
+				$order = wc_get_order( $order_id );
 				if ( ! is_a( $order, 'WC_Order' ) ) {
 					return;
 				}

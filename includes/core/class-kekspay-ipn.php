@@ -98,7 +98,14 @@ if ( ! class_exists( 'Kekspay_IPN' ) ) {
 		public function kekspay_status_check() {
 			check_ajax_referer( 'kekspay_advice_status' );
 
-			$order  = new WC_Order( filter_input( INPUT_POST, 'order_id', FILTER_SANITIZE_NUMBER_INT ) );
+			$order_id  = filter_input( INPUT_POST, 'order_id', FILTER_SANITIZE_NUMBER_INT );
+			$order_key = filter_input( INPUT_POST, 'order_key', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+			$order     = $order_id ? wc_get_order( $order_id ) : false;
+
+			if ( ! $order || KEKSPAY_PLUGIN_ID !== $order->get_payment_method() || ! $order_key || ! hash_equals( $order->get_order_key(), $order_key ) ) {
+				$this->respond_error( 'Invalid order.' );
+			}
+
 			$status = $order->get_meta( 'kekspay_status' );
 
 			$response = [

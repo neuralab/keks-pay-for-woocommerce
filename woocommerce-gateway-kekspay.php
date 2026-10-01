@@ -326,6 +326,7 @@ if ( ! class_exists( 'WC_Kekspay' ) ) {
 							'nonce'       => wp_create_nonce( 'kekspay_advice_status' ),
 							'ipn_refresh' => apply_filters( 'kekspay_ipn_refresh_rate', 5000 ),
 							'order_id'    => $order_id,
+							'order_key'   => $order->get_order_key(),
 						];
 
 						wp_localize_script( 'kekspay-client-script', 'kekspayClientScript', $localize_data );

@@ -135,6 +135,9 @@ if ( ! class_exists( 'Kekspay_IPN' ) ) {
 			}
 
 			$params = $this->resolve_params();
+			if ( is_array( $params ) ) {
+				unset( $params['token'] );
+			}
 			Kekspay_Logger::log( wp_json_encode( $params ), 'info' );
 			// Check if any parametars are received.
 			if ( ! $params ) {

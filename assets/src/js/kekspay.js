@@ -14,7 +14,8 @@ jQuery( function( $ ) {
       data: {
         'action': 'kekspay_status_check',
         '_ajax_nonce': kekspayClientScript.nonce,
-        'order_id': kekspayClientScript.order_id
+        'order_id': kekspayClientScript.order_id,
+        'order_key': kekspayClientScript.order_key
       },
       success: function(response) {
         if ( 'pending' !== response.status ) {

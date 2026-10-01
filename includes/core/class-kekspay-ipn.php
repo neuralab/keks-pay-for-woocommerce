@@ -98,7 +98,14 @@ if ( ! class_exists( 'Kekspay_IPN' ) ) {
 		public function kekspay_status_check() {
 			check_ajax_referer( 'kekspay_advice_status' );
 
-			$order  = new WC_Order( filter_input( INPUT_POST, 'order_id', FILTER_SANITIZE_NUMBER_INT ) );
+			$order_id  = filter_input( INPUT_POST, 'order_id', FILTER_SANITIZE_NUMBER_INT );
+			$order_key = filter_input( INPUT_POST, 'order_key', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+			$order     = $order_id ? wc_get_order( $order_id ) : false;
+
+			if ( ! $order || KEKSPAY_PLUGIN_ID !== $order->get_payment_method() || ! $order_key || ! hash_equals( $order->get_order_key(), $order_key ) ) {
+				$this->respond_error( 'Invalid order.' );
+			}
+
 			$status = $order->get_meta( 'kekspay_status' );
 
 			$response = [
@@ -128,6 +135,9 @@ if ( ! class_exists( 'Kekspay_IPN' ) ) {
 			}
 
 			$params = $this->resolve_params();
+			if ( is_array( $params ) ) {
+				unset( $params['token'] );
+			}
 			Kekspay_Logger::log( wp_json_encode( $params ), 'info' );
 			// Check if any parametars are received.
 			if ( ! $params ) {
@@ -141,6 +151,10 @@ if ( ! class_exists( 'Kekspay_IPN' ) ) {
 					Kekspay_Logger::log( 'Missing ' . $required_param . ' parametar in the request for IPN.', 'error' );
 					$this->respond_error( 'Missing or corrupt required parametars.' );
 				}
+			}
+			$status = filter_var( $params['status'], FILTER_VALIDATE_INT );
+			if ( false === $status ) {
+				$this->respond_error( 'Invalid payment status.' );
 			}
 
 			// Check if recieved TID matches the webshop TID.
@@ -157,7 +171,7 @@ if ( ! class_exists( 'Kekspay_IPN' ) ) {
 				$this->respond_error( 'Couldn\'t find corresponding order ' . $params['bill_id'] . '.' );
 			}
 
-			if ( (int) $params['status'] === 0 ) {
+			if ( 0 === $status ) {
 				Kekspay_Logger::log( 'KEKS Pay successfully completed payment for order ' . $order_id . ', setting status to ' . $params['message'], 'info' );
 				$order->set_status( Kekspay_Data::get_settings( 'payed-order-status' ) ?: 'processing', __( 'Narudžba uspješno plaćena putem KEKS Pay aplikacije.', 'kekspay' ) );
 				$order->add_meta_data( 'kekspay_status', 'success', true );

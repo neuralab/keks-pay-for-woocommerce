@@ -2,9 +2,9 @@
 Contributors: erstebank
 Tags: kekspay, woocommerce, gateway, payment
 Requires at least: 6.3
-Tested up to: 7
+Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 2.1.1
+Stable tag: 2.2.0
 License: GPL v3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -48,6 +48,12 @@ On a side note, this plugin is provided “as-is” and we don't currently provi
 For more installation options check the [official WordPress documentation](https://wordpress.org/support/article/managing-plugins/#manual-plugin-installation) about installing plugins.
 
 == Changelog ==
+
+= 2.2.0 =
+* Fix test mode notices.
+* Improve internal status check
+* Add strict external status validation
+* Bump tested up to.
 
 = 2.1.1 =
 * Fix multiple localization calls for block checkout.

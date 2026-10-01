@@ -152,6 +152,10 @@ if ( ! class_exists( 'Kekspay_IPN' ) ) {
 					$this->respond_error( 'Missing or corrupt required parametars.' );
 				}
 			}
+			$status = filter_var( $params['status'], FILTER_VALIDATE_INT );
+			if ( false === $status ) {
+				$this->respond_error( 'Invalid payment status.' );
+			}
 
 			// Check if recieved TID matches the webshop TID.
 			if ( $params['tid'] !== Kekspay_Data::get_settings( 'webshop-tid', true ) ) {
@@ -167,7 +171,7 @@ if ( ! class_exists( 'Kekspay_IPN' ) ) {
 				$this->respond_error( 'Couldn\'t find corresponding order ' . $params['bill_id'] . '.' );
 			}
 
-			if ( (int) $params['status'] === 0 ) {
+			if ( 0 === $status ) {
 				Kekspay_Logger::log( 'KEKS Pay successfully completed payment for order ' . $order_id . ', setting status to ' . $params['message'], 'info' );
 				$order->set_status( Kekspay_Data::get_settings( 'payed-order-status' ) ?: 'processing', __( 'Narudžba uspješno plaćena putem KEKS Pay aplikacije.', 'kekspay' ) );
 				$order->add_meta_data( 'kekspay_status', 'success', true );

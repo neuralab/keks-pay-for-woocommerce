@@ -152,8 +152,11 @@ if ( ! class_exists( 'Kekspay_IPN' ) ) {
 					$this->respond_error( 'Missing or corrupt required parametars.' );
 				}
 			}
+
+			// Check if status is a valid value.
 			$status = filter_var( $params['status'], FILTER_VALIDATE_INT );
 			if ( false === $status ) {
+				Kekspay_Logger::log( 'Invalid status parametar in the request for IPN.', 'error' );
 				$this->respond_error( 'Invalid payment status.' );
 			}
 

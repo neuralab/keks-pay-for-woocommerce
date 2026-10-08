@@ -9,7 +9,7 @@ jobs:
       with:
         fetch-depth: 0 # <-- clone with complete history
     - name: Push
-      uses: heussd/mirror-to-bitbucket-github-action@v2
+      uses: heussd/mirror-to-bitbucket-github-action@v3
       with:
         username: IvanPetakNeuralab
         password: ${{ secrets.BITBUCKET_PASSWORD }}

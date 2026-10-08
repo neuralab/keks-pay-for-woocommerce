@@ -13,5 +13,5 @@ jobs:
       with:
         username: IvanPetakNeuralab
         password: ${{ secrets.BITBUCKET_PASSWORD }}
-        spacename: erstedigital
+        spacename: kekspay
         repository: keks_woocommerce

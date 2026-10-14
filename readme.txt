@@ -57,7 +57,7 @@ For more installation options check the [official WordPress documentation](https
 * Fix fatal error on order pay page with invalid order ID.
 * Use configured title, logo and test mode notice in block checkout.
 * Support chillerlan/php-qrcode v4, v5 and v6 loaded by other plugins.
-* Poll payment status less aggressively.
+* Check payment status via REST API without jQuery, less often and right away when customer returns to the page.
 * Show admin notices only on WooCommerce and plugins screens.
 * Change text domain to keks-pay-for-woocommerce.
 * Move plugin classes to the Kekspay namespace, old class names and constants are deprecated.

@@ -25,8 +25,46 @@ class IPN {
 	 */
 	public function __construct() {
 		add_action( 'woocommerce_api_' . Data::get_wc_endpoint(), [ $this, 'do_checkout_status' ] );
-		add_action( 'wp_ajax_kekspay_status_check', [ $this, 'kekspay_status_check' ] );
-		add_action( 'wp_ajax_nopriv_kekspay_status_check', [ $this, 'kekspay_status_check' ] );
+		add_action( 'rest_api_init', [ $this, 'register_status_route' ] );
+	}
+
+	/**
+	 * Return URL of the REST endpoint used by order pay page to check payment status.
+	 *
+	 * @return string
+	 */
+	public static function get_status_endpoint() {
+		return rest_url( 'kekspay/v1/order-status' );
+	}
+
+	/**
+	 * Register REST route used by order pay page to check payment status.
+	 *
+	 * Uses POST so responses are never cached by page caches. Access is checked using order key in the callback, nonce
+	 * is not used since it is the same for all visitors that are not logged in and goes stale on cached pages.
+	 *
+	 * @return void
+	 */
+	public function register_status_route() {
+		register_rest_route(
+			'kekspay/v1',
+			'/order-status',
+			[
+				'methods'             => \WP_REST_Server::CREATABLE,
+				'callback'            => [ $this, 'get_order_status' ],
+				'permission_callback' => '__return_true',
+				'args'                => [
+					'order_id'  => [
+						'required'          => true,
+						'sanitize_callback' => 'absint',
+					],
+					'order_key' => [
+						'required'          => true,
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+				],
+			]
+		);
 	}
 
 	/**
@@ -100,19 +138,22 @@ class IPN {
 	}
 
 	/**
-	 * Check if order status has changed and return the new status
+	 * Return KEKS Pay payment status of the order and URL to redirect to once payment is completed or failed.
 	 *
-	 * @return void
+	 * @param \WP_REST_Request $request Request with order_id and order_key params.
+	 *
+	 * @return \WP_REST_Response|\WP_Error
 	 */
-	public function kekspay_status_check() {
-		check_ajax_referer( 'kekspay_advice_status' );
-
-		$order_id  = filter_input( INPUT_POST, 'order_id', FILTER_SANITIZE_NUMBER_INT );
-		$order_key = filter_input( INPUT_POST, 'order_key', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
-		$order     = $order_id ? wc_get_order( $order_id ) : false;
+	public function get_order_status( \WP_REST_Request $request ) {
+		$order_key = $request->get_param( 'order_key' );
+		$order     = wc_get_order( $request->get_param( 'order_id' ) );
 
 		if ( ! $order || Plugin::ID !== $order->get_payment_method() || ! $order_key || ! hash_equals( $order->get_order_key(), $order_key ) ) {
-			$this->respond_error( 'Invalid order.' );
+			return new \WP_Error(
+				'kekspay_invalid_order',
+				'Invalid order.',
+				[ 'status' => 400 ]
+			);
 		}
 
 		$status = $order->get_meta( 'kekspay_status' );
@@ -123,6 +164,11 @@ class IPN {
 		];
 
 		if ( 'failed' === $status ) {
+			// WooCommerce doesn't start session for REST requests, it's needed to show the notice after redirect.
+			if ( ! WC()->session ) {
+				WC()->initialize_session();
+			}
+
 			/* translators: payment failed on checkout QR scanning */
 			wc_add_notice( sprintf( __( 'Nešto je pošlo po zlu pri pokušaju naplate vaše narudžbe (#%d) putem KEKS Pay servisa, molimo pokušajte ponoviti narudžbu ili kontaktirajte administratora web trgovine za više informacija.', 'keks-pay-for-woocommerce' ), $order->get_id() ), 'error' );
 			$response['redirect'] = $order->get_cancel_order_url_raw();
@@ -130,7 +176,7 @@ class IPN {
 			$response['redirect'] = $order->get_checkout_order_received_url();
 		}
 
-		$this->respond( $response );
+		return rest_ensure_response( $response );
 	}
 
 	/**

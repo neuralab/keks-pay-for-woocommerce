@@ -426,8 +426,7 @@ final class Plugin {
 			'kekspay-client-script',
 			'kekspayClientScript',
 			[
-				'ajaxurl'     => admin_url( 'admin-ajax.php' ),
-				'nonce'       => wp_create_nonce( 'kekspay_advice_status' ),
+				'endpoint'    => IPN::get_status_endpoint(),
 				'ipn_refresh' => apply_filters( 'kekspay_ipn_refresh_rate', 5000 ),
 				'order_id'    => $order_id,
 				'order_key'   => $order->get_order_key(),

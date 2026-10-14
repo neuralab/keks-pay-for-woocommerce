@@ -10,15 +10,14 @@
 	const requestTimeout = 10000;
 	const startedAt      = Date.now();
 	const body           = new URLSearchParams( {
-		action: 'kekspay_status_check',
-		_ajax_nonce: config.nonce,
 		order_id: config.order_id,
 		order_key: config.order_key,
 	} );
 
-	let timer    = null;
-	let inFlight = false;
-	let stopped  = false;
+	let timer       = null;
+	let inFlight    = false;
+	let stopped     = false;
+	let lastCheckAt = 0;
 
 	const stop = () => {
 		stopped = true;
@@ -43,17 +42,18 @@
 	};
 
 	const check = async () => {
-		timer    = null;
-		inFlight = true;
+		timer       = null;
+		inFlight    = true;
+		lastCheckAt = Date.now();
 
 		// Abort hanging requests so polling continues.
 		const controller = new AbortController();
 		const abortTimer = setTimeout( () => controller.abort(), requestTimeout );
 
 		try {
-			const response = await fetch( config.ajaxurl, { method: 'POST', body, signal: controller.signal } );
+			const response = await fetch( config.endpoint, { method: 'POST', body, signal: controller.signal } );
 
-			// Invalid order or nonce, retrying won't help.
+			// Invalid order, retrying won't help.
 			if ( response.status >= 400 && response.status < 500 ) {
 				stop();
 				return;
@@ -80,15 +80,35 @@
 		schedule();
 	};
 
-	// Pause checking while the tab is hidden and check immediately when it becomes visible again.
+	// Check right away instead of waiting for the next scheduled check, customer may return after paying on the phone.
+	const checkNow = () => {
+		if ( stopped || inFlight || document.hidden ) {
+			return;
+		}
+
+		clearTimeout( timer );
+		timer = null;
+
+		// Avoid flooding when focus changes quickly, just resume regular checks.
+		if ( Date.now() - lastCheckAt < 1000 ) {
+			schedule();
+			return;
+		}
+
+		check();
+	};
+
+	// Pause checking while the tab is hidden.
 	document.addEventListener( 'visibilitychange', () => {
 		if ( document.hidden ) {
 			clearTimeout( timer );
 			timer = null;
-		} else if ( ! stopped && ! timer && ! inFlight ) {
-			check();
+		} else {
+			checkNow();
 		}
 	} );
+
+	window.addEventListener( 'focus', checkNow );
 
 	check();
 } )();

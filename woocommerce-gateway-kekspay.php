@@ -99,7 +99,7 @@ if ( ! class_exists( 'WC_Kekspay' ) ) {
 			add_filter( 'plugin_action_links', [ $this, 'add_settings_link' ], 10, 2 );
 			add_action( 'admin_enqueue_scripts', [ $this, 'register_admin_script' ] );
 			add_action( 'wp_enqueue_scripts', [ $this, 'register_client_script' ] );
-			add_action( 'admin_init', [ $this, 'check_settings' ], 20 );
+			add_action( 'current_screen', [ $this, 'check_settings' ] );
 			add_action( 'admin_init', [ $this, 'check_for_other_kekspay_gateways' ], 1 );
 			add_action( 'activated_plugin', [ $this, 'set_kekspay_plugins_check_required' ] );
 			add_action( 'woocommerce_admin_field_payment_gateways', [ $this, 'set_kekspay_plugins_check_required' ] );
@@ -198,6 +198,13 @@ if ( ! class_exists( 'WC_Kekspay' ) ) {
 				return;
 			}
 
+			// Show notices only on plugins and WooCommerce screens.
+			$screen     = get_current_screen();
+			$screen_ids = function_exists( 'wc_get_screen_ids' ) ? wc_get_screen_ids() : [];
+			if ( ! $screen || ! in_array( $screen->id, array_merge( $screen_ids, [ 'plugins', 'dashboard' ] ), true ) ) {
+				return;
+			}
+
 			// Check if gateway is currently in test mode.
 			if ( Kekspay_Data::test_mode() ) {
 				self::admin_notice( __( 'KEKS Pay je trenutno u testom načinu rada, ne zaboravite ga ugasiti po završetku testiranja.', 'kekspay' ), 'warning' );
@@ -264,7 +271,7 @@ if ( ! class_exists( 'WC_Kekspay' ) ) {
 		 */
 		public static function deactivate_self() {
 			remove_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), [ self::get_instance(), 'add_settings_link' ] );
-			remove_action( 'admin_init', [ self::get_instance(), 'check_settings' ], 20 );
+			remove_action( 'current_screen', [ self::get_instance(), 'check_settings' ] );
 
 			deactivate_plugins( plugin_basename( __FILE__ ) );
 			unset( $_GET['activate'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended

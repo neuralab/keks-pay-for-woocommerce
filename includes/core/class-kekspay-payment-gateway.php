@@ -30,9 +30,6 @@ if ( ! class_exists( 'Kekspay_Payment_Gateway' ) ) {
 		 * Class constructor with basic gateway's setup.
 		 */
 		public function __construct() {
-			require_once KEKSPAY_DIR_PATH . '/includes/core/class-kekspay-connector.php';
-			require_once KEKSPAY_DIR_PATH . '/includes/core/class-kekspay-sell.php';
-
 			$this->id                 = KEKSPAY_PLUGIN_ID;
 			$this->method_title       = __( 'KEKS Pay', 'kekspay' );
 			$this->method_description = __( 'Najbrže i bez naknada putem KEKS Pay aplikacije!', 'kekspay' );
@@ -107,7 +104,7 @@ if ( ! class_exists( 'Kekspay_Payment_Gateway' ) ) {
 		 * @override
 		 */
 		public function init_form_fields() {
-			$this->form_fields = include KEKSPAY_DIR_PATH . '/includes/settings/kekspay-settings.php';
+			$this->form_fields = include KEKSPAY_DIR_PATH . 'includes/settings/kekspay-settings.php';
 		}
 
 		/**

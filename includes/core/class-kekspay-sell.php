@@ -81,7 +81,7 @@ if ( ! class_exists( 'Kekspay_Sell' ) ) {
 				return esc_html__( 'Dogodila se greška prilikom kreiranja QR kȏda za ovu narudžbu. Molimo rekreirajte narudžbu ili kontaktirajte vlasnika web stranice.', 'keks-pay-for-woocommerce' );
 			}
 
-			return apply_filters( 'kekspay_sell_qr_code', '<img class="kekspay-qr-code" src="' . esc_attr( $qrcode ) . '" width="245" height="245" alt="' . esc_attr__( 'QR kȏd', 'keks-pay-for-woocommerce' ) . '">', $qrcode );
+			return apply_filters( 'kekspay_sell_qr_code', '<div class="kekspay-qr-code" role="img" aria-label="' . esc_attr__( 'QR kȏd', 'keks-pay-for-woocommerce' ) . '" style="background-image: url(' . esc_attr( $qrcode ) . ');"></div>', $qrcode );
 		}
 
 		/**

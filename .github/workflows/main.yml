@@ -27,11 +27,8 @@ jobs:
         tools: composer:v2
     - name: Install PHP dependencies
       run: composer install --no-dev --no-interaction --prefer-dist
-    - name: Verify vendor packages are prefixed
-      run: |
-        test -f vendor/autoload.php
-        test -f vendor-prefixed/autoload.php
-        test ! -d vendor/chillerlan
+    - name: Verify PHP dependencies are installed
+      run: test -f vendor/autoload.php
     - name: WordPress Plugin Deploy
       id: deploy
       uses: 10up/action-wordpress-plugin-deploy@stable

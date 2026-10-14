@@ -14,5 +14,3 @@ package.json
 package-lock.json
 mix-manifest.json
 webpack.mix.js
-bin
-scripts

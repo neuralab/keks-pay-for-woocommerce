@@ -2,7 +2,7 @@
 	"license": "GPL-3.0-or-later",
 	"require": {
 		"php": "^7.4 || ^8.0",
-		"chillerlan/php-qrcode": "^4.4"
+		"chillerlan/php-qrcode": "^4.4 || ^5.0 || ^6.0"
 	},
 	"autoload": {
 		"classmap": [
@@ -14,30 +14,5 @@
 			"php": "7.4"
 		},
 		"optimize-autoloader": true
-	},
-	"scripts": {
-		"prefix-namespaces": [
-			"@php scripts/download-strauss.php",
-			"@php bin/strauss.phar",
-			"@composer dump-autoload"
-		],
-		"post-install-cmd": [
-			"@prefix-namespaces"
-		],
-		"post-update-cmd": [
-			"@prefix-namespaces"
-		]
-	},
-	"extra": {
-		"strauss": {
-			"target_directory": "vendor-prefixed",
-			"namespace_prefix": "Kekspay\\Vendor\\",
-			"classmap_prefix": "Kekspay_Vendor_",
-			"constant_prefix": "KEKSPAY_VENDOR_",
-			"packages": [
-				"chillerlan/php-qrcode"
-			],
-			"delete_vendor_packages": true
-		}
 	}
 }

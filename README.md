@@ -37,7 +37,9 @@ For more installation options check the [official WordPress documentation](https
 
 ## Development
 
-PHP dependencies are not committed. Run `composer install` to install them, prefix their namespaces into `vendor-prefixed/` using [Strauss](https://github.com/BrianHenryIE/strauss) and generate the autoloader (plugin classes in `includes/` are autoloaded via classmap, run `composer dump-autoload` after adding a new class). Run `npm install && npx mix` to build assets.
+PHP dependencies are not committed. Run `composer install` to install them and generate the autoloader (plugin classes in `includes/` are autoloaded via classmap, run `composer dump-autoload` after adding a new class). Run `npm install && npx mix` to build assets.
+
+Other plugins may bundle `chillerlan/php-qrcode` and their copy can be loaded instead of ours, so `Kekspay_Sell` detects the loaded version (v4, v5 or v6) and builds QR code options accordingly. When a new major version is released, add support for it there and widen the version constraint in `composer.json`.
 
 The deploy workflow runs both before publishing a release to WordPress.org.
 

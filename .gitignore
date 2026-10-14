@@ -3,5 +3,3 @@ node_modules/
 assets/dist
 mix-manifest.json
 vendor/
-vendor-prefixed/
-bin/

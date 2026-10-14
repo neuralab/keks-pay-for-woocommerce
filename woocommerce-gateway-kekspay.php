@@ -454,13 +454,12 @@ function kekspay_init() {
 		return;
 	}
 
-	if ( ! file_exists( __DIR__ . '/vendor/autoload.php' ) || ! file_exists( __DIR__ . '/vendor-prefixed/autoload.php' ) ) {
+	if ( ! file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
 		add_action( 'admin_notices', 'kekspay_admin_notice_missing_dependencies' );
 		return;
 	}
 
 	require_once __DIR__ . '/vendor/autoload.php';
-	require_once __DIR__ . '/vendor-prefixed/autoload.php';
 
 	WC_Kekspay::get_instance();
 }

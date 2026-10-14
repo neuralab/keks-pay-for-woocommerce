@@ -3,7 +3,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use Kekspay\Vendor\chillerlan\QRCode\{ QRCode, QROptions };
+use chillerlan\QRCode\{ QRCode, QROptions };
+use chillerlan\QRCode\Common\EccLevel;
+use chillerlan\QRCode\Output\{ QRGdImagePNG, QROutputInterface };
 
 if ( ! class_exists( 'Kekspay_Sell' ) ) {
 	/**
@@ -41,23 +43,65 @@ if ( ! class_exists( 'Kekspay_Sell' ) ) {
 			$data = Kekspay_Data::get_sell_data( $order );
 
 			try {
-				$options = new QROptions(
-					[
-						'version'          => 6,
-						'quietzoneSize'    => 4,
-						'eccLevel'         => QRCode::ECC_L,
-						'imageTransparent' => false,
-					]
-				);
-
-				$qrcode = new QRCode( $options );
+				$qrcode = new QRCode( new QROptions( self::get_qr_options() ) );
 
 				return $qrcode->render( wp_json_encode( $data ) );
-			} catch ( \Exception $e ) {
-				Kekspay_Logger::log( 'Failed to create QR Code. Exception message: ' . $e->getMessage(), 'error' );
+			} catch ( \Throwable $e ) {
+				Kekspay_Logger::log( 'Failed to create QR Code using chillerlan/php-qrcode v' . self::get_qr_library_version() . '. Exception message: ' . $e->getMessage(), 'error' );
 			}
 
 			return false;
+		}
+
+		/**
+		 * Detect major version of the loaded chillerlan/php-qrcode library.
+		 *
+		 * Another plugin may bundle the same library and its copy can be loaded instead of ours, so the version is
+		 * detected by the API that is available instead of relying on the bundled version.
+		 *
+		 * @return int Major version, 4, 5 or 6.
+		 */
+		public static function get_qr_library_version() {
+			if ( ! class_exists( QRGdImagePNG::class ) ) {
+				return 4;
+			}
+
+			return defined( QROutputInterface::class . '::GDIMAGE_PNG' ) ? 5 : 6;
+		}
+
+		/**
+		 * Return QR code options for the loaded chillerlan/php-qrcode library version.
+		 *
+		 * Renders base64 encoded 245x245px PNG data URI (version 6 QR code, scale 5, quiet zone 4) in all versions.
+		 *
+		 * @return array
+		 */
+		public static function get_qr_options() {
+			$options = [
+				'version'          => 6,
+				'quietzoneSize'    => 4,
+				'scale'            => 5,
+				'imageTransparent' => false,
+			];
+
+			switch ( self::get_qr_library_version() ) {
+				case 4:
+					$options['eccLevel']    = QRCode::ECC_L;
+					$options['outputType']  = QRCode::OUTPUT_IMAGE_PNG;
+					$options['imageBase64'] = true;
+					break;
+				case 5:
+					$options['eccLevel']     = EccLevel::L;
+					$options['outputType']   = QROutputInterface::GDIMAGE_PNG;
+					$options['outputBase64'] = true;
+					break;
+				default:
+					$options['eccLevel']        = EccLevel::L;
+					$options['outputInterface'] = QRGdImagePNG::class;
+					$options['outputBase64']    = true;
+			}
+
+			return $options;
 		}
 
 		/**

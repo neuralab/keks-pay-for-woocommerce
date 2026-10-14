@@ -94,6 +94,7 @@ class Payment_Gateway extends \WC_Payment_Gateway {
 	 * @override
 	 */
 	public function admin_options() {
+		$this->display_errors();
 		?>
 		<h2><?php esc_html_e( 'KEKS Pay', 'keks-pay-for-woocommerce' ); ?></h2>
 
@@ -101,6 +102,41 @@ class Payment_Gateway extends \WC_Payment_Gateway {
 			<?php $this->generate_settings_html(); ?>
 		</table>
 		<?php
+	}
+
+	/**
+	 * Validate password fields, secret keys must be usable for hashing requests to KEKS Pay.
+	 *
+	 * Invalid secret key is not saved, previous value is kept and error is shown.
+	 *
+	 * @override
+	 * @param string $key   Field key.
+	 * @param string $value Posted value.
+	 *
+	 * @throws \Exception Secret key length is not valid.
+	 *
+	 * @return string
+	 */
+	public function validate_password_field( $key, $value ) {
+		$value = parent::validate_password_field( $key, $value );
+
+		if ( '' === $value || ! in_array( $key, [ 'webshop-secret-key', 'test-webshop-secret-key' ], true ) ) {
+			return $value;
+		}
+
+		try {
+			Data::get_cipher( $value );
+		} catch ( \Exception $e ) {
+			throw new \Exception(
+				sprintf(
+					/* translators: %s: secret key field title */
+					esc_html__( '%s nije spremljen: tajni ključ mora imati 16, 24 ili 32 znaka, a ključ od samo heksadecimalnih znakova (0-9, a-f) mora imati 24 znaka.', 'keks-pay-for-woocommerce' ),
+					esc_html( $this->form_fields[ $key ]['title'] )
+				)
+			);
+		}
+
+		return $value;
 	}
 
 	/**

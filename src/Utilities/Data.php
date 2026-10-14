@@ -18,11 +18,11 @@ defined( 'ABSPATH' ) || exit;
  */
 class Data {
 	/**
-	 * Gateway settings loaded from the database.
+	 * Option in which WooCommerce stores gateway settings.
 	 *
-	 * @var array
+	 * @var string
 	 */
-	private static $settings = [];
+	const SETTINGS_OPTION = 'woocommerce_' . Plugin::ID . '_settings';
 
 	/**
 	 * Set endpoint for webshop api.
@@ -53,19 +53,14 @@ class Data {
 	private static $test_kekspay_api = 'https://kekspayuat.erstebank.hr/eretailer/';
 
 	/**
-	 * Init data class.
-	 */
-	public function __construct() {
-		self::load_settings();
-	}
-
-	/**
-	 * Load gateway settings from the database.
+	 * Settings are no longer cached, they are read from the option when used.
+	 *
+	 * @deprecated 3.0.0
 	 *
 	 * @return void
 	 */
 	public static function load_settings() {
-		self::$settings = get_option( 'woocommerce_' . Plugin::ID . '_settings', [] );
+		_deprecated_function( __METHOD__, '3.0.0' );
 	}
 
 	/**
@@ -76,7 +71,7 @@ class Data {
 	 * @return void
 	 */
 	public static function set_settings( $settings ) {
-		update_option( 'woocommerce_' . Plugin::ID . '_settings', array_merge( self::get_settings(), $settings ) );
+		update_option( self::SETTINGS_OPTION, array_merge( self::get_settings(), $settings ) );
 	}
 
 	/**
@@ -85,11 +80,7 @@ class Data {
 	 * @return bool
 	 */
 	public static function enabled() {
-		if ( empty( self::$settings ) ) {
-			self::load_settings();
-		}
-
-		return isset( self::$settings['enabled'] ) && 'yes' === self::$settings['enabled'];
+		return 'yes' === self::get_settings( 'enabled' );
 	}
 
 	/**
@@ -98,11 +89,7 @@ class Data {
 	 * @return bool
 	 */
 	public static function test_mode() {
-		if ( empty( self::$settings ) ) {
-			self::load_settings();
-		}
-
-		return isset( self::$settings['in-test-mode'] ) && 'yes' === self::$settings['in-test-mode'];
+		return 'yes' === self::get_settings( 'in-test-mode' );
 	}
 
 	/**
@@ -145,19 +132,19 @@ class Data {
 	 * @return array|string|null
 	 */
 	public static function get_settings( $name = false, $test_check = false ) {
-		if ( empty( self::$settings ) ) {
-			self::load_settings();
-		}
+		// Read on every call so settings are never stale, e.g. right after saving them, options are cached by WordPress.
+		$settings = get_option( self::SETTINGS_OPTION, [] );
+		$settings = is_array( $settings ) ? $settings : [];
 
 		if ( $name ) {
 			if ( $test_check ) {
 				$name = self::test_mode() ? 'test-' . $name : $name;
 			}
 
-			return isset( self::$settings[ $name ] ) ? self::$settings[ $name ] : null;
+			return isset( $settings[ $name ] ) ? $settings[ $name ] : null;
 		}
 
-		return self::$settings;
+		return $settings;
 	}
 
 	/**
@@ -173,19 +160,25 @@ class Data {
 	}
 
 	/**
-	 * Return auth token or generate if there is none.
+	 * Return token KEKS Pay uses to authenticate payment notifications, empty string if not generated yet.
 	 *
 	 * @return string
 	 */
 	public static function get_auth_token() {
-		$token = self::get_settings( 'auth-token' );
-		if ( ! $token ) {
-			$token = hash_hmac( 'sha256', bin2hex( openssl_random_pseudo_bytes( 64 ) ), site_url() );
+		return (string) self::get_settings( 'auth-token' );
+	}
 
-			self::set_settings( [ 'auth-token' => $token ] );
+	/**
+	 * Generate token for authenticating payment notifications if there is none.
+	 *
+	 * Runs on activation and in admin, so the token is never generated while rendering settings.
+	 *
+	 * @return void
+	 */
+	public static function maybe_generate_auth_token() {
+		if ( ! self::get_auth_token() ) {
+			self::set_settings( [ 'auth-token' => bin2hex( random_bytes( 32 ) ) ] );
 		}
-
-		return $token;
 	}
 
 	/**

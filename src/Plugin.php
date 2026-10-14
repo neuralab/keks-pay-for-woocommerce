@@ -103,6 +103,7 @@ final class Plugin {
 		add_action( 'wp_enqueue_scripts', [ $this, 'register_client_script' ] );
 		add_action( 'current_screen', [ $this, 'check_settings' ] );
 		add_action( 'admin_init', [ $this, 'check_for_other_kekspay_gateways' ], 1 );
+		add_action( 'admin_init', [ Data::class, 'maybe_generate_auth_token' ] );
 		add_action( 'activated_plugin', [ self::class, 'set_kekspay_plugins_check_required' ] );
 		add_action( 'woocommerce_admin_field_payment_gateways', [ self::class, 'set_kekspay_plugins_check_required' ] );
 		add_action( 'woocommerce_blocks_loaded', [ $this, 'register_checkout_block_gateway' ] );
@@ -167,6 +168,7 @@ final class Plugin {
 	 */
 	public static function activate() {
 		self::set_kekspay_plugins_check_required();
+		Data::maybe_generate_auth_token();
 	}
 
 	/**

@@ -243,7 +243,13 @@ if ( ! class_exists( 'Kekspay_IPN' ) ) {
 				Kekspay_Logger::log( 'Token src: ' . $token_src, 'info' );
 			}
 
-			return hash_equals( Kekspay_Data::get_settings( 'auth-token' ), str_replace( 'Token ', '', $token ) );
+			$auth_token = (string) Kekspay_Data::get_settings( 'auth-token' );
+			if ( ! $auth_token ) {
+				Kekspay_Logger::log( 'Webshop authentication token is not generated yet, open gateway settings to generate it.', 'error' );
+				return false;
+			}
+
+			return hash_equals( $auth_token, str_replace( 'Token ', '', $token ) );
 		}
 	}
 }

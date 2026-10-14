@@ -306,7 +306,13 @@ class IPN {
 
 		$order_id    = $order->get_id();
 		$paid_status = Data::get_settings( 'payed-order-status' );
-		$set_status  = function( $status, $id ) use ( $order_id, $paid_status ) {
+
+		// Ignore statuses that are not paid statuses, could be saved before the setting was limited to them.
+		if ( ! isset( Settings::get_paid_statuses()[ $paid_status ] ) ) {
+			$paid_status = '';
+		}
+
+		$set_status = function( $status, $id ) use ( $order_id, $paid_status ) {
 			return (int) $id === $order_id && $paid_status ? $paid_status : $status;
 		};
 

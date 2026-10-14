@@ -16,6 +16,26 @@ defined( 'ABSPATH' ) || exit;
  */
 class Settings {
 	/**
+	 * Return order statuses WooCommerce considers paid, which can be set after successful payment.
+	 *
+	 * Processing and Completed by default, plugins can add custom paid statuses using
+	 * "woocommerce_order_is_paid_statuses" filter.
+	 *
+	 * @return array Status labels keyed by status with "wc-" prefix.
+	 */
+	public static function get_paid_statuses() {
+		$paid_statuses = wc_get_is_paid_statuses();
+
+		return array_filter(
+			wc_get_order_statuses(),
+			function( $status ) use ( $paid_statuses ) {
+				return in_array( 0 === strpos( $status, 'wc-' ) ? substr( $status, 3 ) : $status, $paid_statuses, true );
+			},
+			ARRAY_FILTER_USE_KEY
+		);
+	}
+
+	/**
 	 * Return gateway's form fields visible at WooCommerce's Settings page and Checkout tab.
 	 *
 	 * @return array
@@ -102,7 +122,7 @@ class Settings {
 					/* translators: order status for payment complete */
 					'description' => sprintf( __( 'Status narudžbe koji će biti postavljen nakon što KEKS Pay uspješno izvrši naplatu same narudžbe. (Zadani status je "%s").', 'keks-pay-for-woocommerce' ), _x( 'Processing', 'Order status', 'woocommerce' ) ),
 					'default'     => 'wc-processing',
-					'options'     => wc_get_order_statuses(),
+					'options'     => self::get_paid_statuses(),
 				],
 				'in-test-mode'            => [
 					'title'       => __( 'Testni način rada', 'keks-pay-for-woocommerce' ),

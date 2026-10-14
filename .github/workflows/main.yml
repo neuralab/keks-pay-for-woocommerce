@@ -14,12 +14,12 @@ jobs:
     - name: Setup Node
       uses: actions/setup-node@v4
       with:
-        node-version: 20
+        node-version: 22
         cache: npm
     - name: Build assets
       run: |
         npm ci
-        npx mix --production
+        npm run build
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:

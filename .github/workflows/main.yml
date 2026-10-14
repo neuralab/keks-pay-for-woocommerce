@@ -20,6 +20,18 @@ jobs:
       run: |
         npm ci
         npx mix --production
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+        tools: composer:v2
+    - name: Install PHP dependencies
+      run: composer install --no-dev --no-interaction --prefer-dist
+    - name: Verify vendor packages are prefixed
+      run: |
+        test -f vendor/autoload.php
+        test -f vendor-prefixed/autoload.php
+        test ! -d vendor/chillerlan
     - name: WordPress Plugin Deploy
       id: deploy
       uses: 10up/action-wordpress-plugin-deploy@stable

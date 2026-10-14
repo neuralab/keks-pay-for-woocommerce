@@ -35,4 +35,10 @@ On a side note, this plugin is provided “as-is” and we don't currently provi
 
 For more installation options check the [official WordPress documentation](https://wordpress.org/support/article/managing-plugins/#manual-plugin-installation) about installing plugins.
 
+## Development
+
+PHP dependencies are not committed. Run `composer install` to install them, prefix their namespaces into `vendor-prefixed/` using [Strauss](https://github.com/BrianHenryIE/strauss) and generate the autoloader (plugin classes in `includes/` are autoloaded via classmap, run `composer dump-autoload` after adding a new class). Run `npm install && npx mix` to build assets.
+
+The deploy workflow runs both before publishing a release to WordPress.org.
+
 

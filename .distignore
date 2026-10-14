@@ -9,9 +9,10 @@ node_modules
 phpcs.xml
 composer.json
 composer.lock
-vendor
 README.md
 package.json
 package-lock.json
 mix-manifest.json
 webpack.mix.js
+bin
+scripts

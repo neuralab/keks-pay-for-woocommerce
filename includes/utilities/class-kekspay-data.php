@@ -164,6 +164,18 @@ if ( ! class_exists( 'Kekspay_Data' ) ) {
 		}
 
 		/**
+		 * Fetch setting using the mode (test or live) in which the order was created.
+		 *
+		 * @param WC_Order $order Order for which to fetch the setting.
+		 * @param string   $name  Name of specific setting to fetch.
+		 *
+		 * @return string|null
+		 */
+		public static function get_order_settings( $order, $name ) {
+			return self::get_settings( self::order_test_mode( $order ) ? 'test-' . $name : $name );
+		}
+
+		/**
 		 * Return auth token or generate if there is none.
 		 *
 		 * @return string
@@ -220,8 +232,9 @@ if ( ! class_exists( 'Kekspay_Data' ) ) {
 		 *
 		 * @return string
 		 */
-		public static function get_kekspay_api_base() {
-			return self::test_mode() ? self::$test_kekspay_api : self::$kekspay_api;
+		public static function get_kekspay_api_base( $order = null ) {
+			$test_mode = $order ? self::order_test_mode( $order ) : self::test_mode();
+			return $test_mode ? self::$test_kekspay_api : self::$kekspay_api;
 		}
 
 		/**
@@ -250,16 +263,23 @@ if ( ! class_exists( 'Kekspay_Data' ) ) {
 				Kekspay_Logger::log( 'Could not fetch order with ID ' . $order_id . ' while generating bill_id.', 'error' );
 				return false;
 			}
-			return self::get_settings( 'webshop-tid', true ) . '-' . $order_id;
+			return self::get_order_settings( $order, 'webshop-tid' ) . '-' . $order->get_id();
 		}
 
 		/**
-		 * Extract order id from kekspay bill id.
+		 * Extract order id from kekspay bill id formatted as "{tid}-{order_id}".
 		 *
-		 * @return string
+		 * @return int Order id, 0 if bill id is malformed.
 		 */
 		public static function get_order_id_by_bill_id( $bill_id ) {
-			return str_replace( self::get_settings( 'webshop-tid', true ) . '-', '', $bill_id );
+			$separator = strrpos( (string) $bill_id, '-' );
+			if ( false === $separator ) {
+				return 0;
+			}
+
+			$order_id = substr( $bill_id, $separator + 1 );
+
+			return ctype_digit( $order_id ) ? (int) $order_id : 0;
 		}
 
 		/**
@@ -344,11 +364,11 @@ if ( ! class_exists( 'Kekspay_Data' ) ) {
 		public static function get_hash( $order, $amount, $timestamp ) {
 			try {
 				// Get hashing key from the plugins settings.
-				$key = (string) self::get_settings( 'webshop-secret-key', true );
+				$key = (string) self::get_order_settings( $order, 'webshop-secret-key' );
 				// Define the cipher used for hashing.
 				$cipher = self::get_cipher( $key );
 				// Concat epochtime + webshop tid + order amount + bill_id for payload.
-				$payload = $timestamp . self::get_settings( 'webshop-tid', true ) . $amount . self::get_bill_id_by_order_id( $order->get_id() );
+				$payload = $timestamp . self::get_order_settings( $order, 'webshop-tid' ) . $amount . self::get_bill_id_by_order_id( $order->get_id() );
 				// Extract bytes from md5 hex hash.
 				$payload_checksum = pack( 'H*', md5( $payload ) );
 				// Create 8 or 16 (depending on cipher) byte binary initialization vector.

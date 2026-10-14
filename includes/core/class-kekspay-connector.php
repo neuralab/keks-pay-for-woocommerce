@@ -69,8 +69,8 @@ class Kekspay_Connector {
 
 		$body = [
 			'bill_id'   => Kekspay_Data::get_bill_id_by_order_id( $order->get_id() ),
-			'tid'       => Kekspay_Data::get_settings( 'webshop-tid', true ),
-			'cid'       => Kekspay_Data::get_settings( 'webshop-cid', true ),
+			'tid'       => Kekspay_Data::get_order_settings( $order, 'webshop-tid' ),
+			'cid'       => Kekspay_Data::get_order_settings( $order, 'webshop-cid' ),
 			'amount'    => $refund_amount,
 			'epochtime' => $timestamp,
 			'hash'      => $hash,
@@ -80,7 +80,7 @@ class Kekspay_Connector {
 
 		$wc_price = wc_price( $amount, [ 'currency' => $currency ] );
 
-		$response = wp_safe_remote_post( Kekspay_Data::get_kekspay_api_base() . 'keksrefund', self::get_default_args( $body ) );
+		$response = wp_safe_remote_post( Kekspay_Data::get_kekspay_api_base( $order ) . 'keksrefund', self::get_default_args( $body ) );
 		Kekspay_Logger::log( 'Request sent to refund order ' . $order->get_id() . ' (' . $amount . $order->get_currency() . ') via KEKS Pay.', 'info' );
 
 		if ( is_wp_error( $response ) ) {

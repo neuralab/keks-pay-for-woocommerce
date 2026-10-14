@@ -160,15 +160,9 @@ if ( ! class_exists( 'Kekspay_IPN' ) ) {
 				$this->respond_error( 'Invalid payment status.' );
 			}
 
-			// Check if recieved TID matches the webshop TID.
-			if ( $params['tid'] !== Kekspay_Data::get_settings( 'webshop-tid', true ) ) {
-				Kekspay_Logger::log( 'Recieved TID ' . $params['tid'] . ' does not match webshop TID in the request for IPN.', 'error' );
-				$this->respond_error( 'Webshop verification failed, mismatch for TID ' . $params['tid'] . '.' );
-			}
-
 			// Extract order id and check if order exists.
 			$order_id = Kekspay_Data::get_order_id_by_bill_id( $params['bill_id'] );
-			$order    = wc_get_order( $order_id );
+			$order    = $order_id ? wc_get_order( $order_id ) : false;
 			if ( ! $order ) {
 				Kekspay_Logger::log( 'Failed to find order ' . $params['bill_id'] . ' from the request for IPN.', 'error' );
 				$this->respond_error( 'Couldn\'t find corresponding order ' . $params['bill_id'] . '.' );
@@ -177,6 +171,12 @@ if ( ! class_exists( 'Kekspay_IPN' ) ) {
 			if ( KEKSPAY_PLUGIN_ID !== $order->get_payment_method() ) {
 				Kekspay_Logger::log( 'Order ' . $order_id . ' from the request for IPN was not placed using KEKS Pay.', 'error' );
 				$this->respond_error( 'Order ' . $params['bill_id'] . ' was not placed using KEKS Pay.' );
+			}
+
+			// Check if recieved TID and bill ID match the ones used for the order.
+			if ( $params['tid'] !== Kekspay_Data::get_order_settings( $order, 'webshop-tid' ) || Kekspay_Data::get_bill_id_by_order_id( $order_id ) !== $params['bill_id'] ) {
+				Kekspay_Logger::log( 'Recieved TID ' . $params['tid'] . ' or bill ID ' . $params['bill_id'] . ' does not match the order in the request for IPN.', 'error' );
+				$this->respond_error( 'Webshop verification failed, mismatch for TID ' . $params['tid'] . '.' );
 			}
 
 			$message = isset( $params['message'] ) ? $params['message'] : '';

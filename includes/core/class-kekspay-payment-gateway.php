@@ -147,10 +147,13 @@ if ( ! class_exists( 'Kekspay_Payment_Gateway' ) ) {
 				$order->save();
 			}
 
-			// Add order meta and note to mark order as TEST if test mode is enabled or order already has not been maked as TEST.
+			// Keep order's test mode flag in sync with the mode used for the payment, refunds and IPN rely on it.
 			if ( Kekspay_Data::test_mode() && ! Kekspay_Data::order_test_mode( $order ) ) {
 				$order->add_order_note( __( 'Narudžba napravljena u testnom načinu rada!', 'kekspay' ) );
-				$order->add_meta_data( 'kekspay_test_mode', 'yes', true );
+				$order->update_meta_data( 'kekspay_test_mode', 'yes' );
+				$order->save();
+			} elseif ( ! Kekspay_Data::test_mode() && Kekspay_Data::order_test_mode( $order ) ) {
+				$order->delete_meta_data( 'kekspay_test_mode' );
 				$order->save();
 			}
 

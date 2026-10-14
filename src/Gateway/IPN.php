@@ -32,6 +32,8 @@ class IPN {
 	public function __construct() {
 		add_action( 'woocommerce_api_' . Data::get_wc_endpoint(), [ $this, 'do_checkout_status' ] );
 		add_action( 'rest_api_init', [ $this, 'register_status_route' ] );
+		add_action( 'wp_ajax_kekspay_status_check', [ $this, 'ajax_order_status' ] );
+		add_action( 'wp_ajax_nopriv_kekspay_status_check', [ $this, 'ajax_order_status' ] );
 	}
 
 	/**
@@ -74,22 +76,62 @@ class IPN {
 	}
 
 	/**
-	 * Return KEKS Pay payment status of the order and URL to redirect to once payment is completed or failed.
+	 * REST endpoint returning KEKS Pay payment status of the order.
 	 *
 	 * @param \WP_REST_Request $request Request with order_id and order_key params.
 	 *
 	 * @return \WP_REST_Response|\WP_Error
 	 */
 	public function get_order_status( \WP_REST_Request $request ) {
-		$order_key = $request->get_param( 'order_key' );
-		$order     = wc_get_order( $request->get_param( 'order_id' ) );
+		$response = $this->get_status_response( $request->get_param( 'order_id' ), $request->get_param( 'order_key' ) );
 
-		if ( ! $order || Plugin::ID !== $order->get_payment_method() || ! $order_key || ! hash_equals( $order->get_order_key(), $order_key ) ) {
+		if ( ! $response ) {
 			return new \WP_Error(
 				'kekspay_invalid_order',
 				'Invalid order.',
 				[ 'status' => 400 ]
 			);
+		}
+
+		return rest_ensure_response( $response );
+	}
+
+	/**
+	 * Admin-ajax fallback returning KEKS Pay payment status of the order, used when REST API is blocked, e.g. by
+	 * security plugins. Also answers order pay pages opened before updating from 2.x which use this action.
+	 *
+	 * Access is checked using order key, nonce sent by pages from 2.x is not required.
+	 *
+	 * @return void
+	 */
+	public function ajax_order_status() {
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Access is checked using order key.
+		$order_id  = isset( $_POST['order_id'] ) ? absint( $_POST['order_id'] ) : 0;
+		$order_key = isset( $_POST['order_key'] ) ? sanitize_text_field( wp_unslash( $_POST['order_key'] ) ) : '';
+		// phpcs:enable
+
+		$response = $this->get_status_response( $order_id, $order_key );
+
+		if ( ! $response ) {
+			$this->respond_error( 'Invalid order.' );
+		}
+
+		wp_send_json( $response );
+	}
+
+	/**
+	 * Return KEKS Pay payment status of the order and URL to redirect to once payment is completed or failed.
+	 *
+	 * @param int    $order_id  Order ID.
+	 * @param string $order_key Order key proving access to the order.
+	 *
+	 * @return array|false Status and redirect URL, false if order is not found or key doesn't match.
+	 */
+	private function get_status_response( $order_id, $order_key ) {
+		$order = $order_id ? wc_get_order( $order_id ) : false;
+
+		if ( ! $order || Plugin::ID !== $order->get_payment_method() || ! $order_key || ! hash_equals( $order->get_order_key(), $order_key ) ) {
+			return false;
 		}
 
 		$status = $order->get_meta( 'kekspay_status' );
@@ -112,7 +154,7 @@ class IPN {
 			$response['redirect'] = $order->get_checkout_order_received_url();
 		}
 
-		return rest_ensure_response( $response );
+		return $response;
 	}
 
 	/**

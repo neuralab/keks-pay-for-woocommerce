@@ -429,6 +429,7 @@ final class Plugin {
 			'kekspayClientScript',
 			[
 				'endpoint'    => IPN::get_status_endpoint(),
+				'fallback'    => admin_url( 'admin-ajax.php' ),
 				'ipn_refresh' => apply_filters( 'kekspay_ipn_refresh_rate', 5000 ),
 				'order_id'    => $order_id,
 				'order_key'   => $order->get_order_key(),

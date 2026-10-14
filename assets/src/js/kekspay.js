@@ -13,11 +13,15 @@
 		order_id: config.order_id,
 		order_key: config.order_key,
 	} );
+	const fallbackBody   = new URLSearchParams( body );
+
+	fallbackBody.append( 'action', 'kekspay_status_check' );
 
 	let timer       = null;
 	let inFlight    = false;
 	let stopped     = false;
 	let lastCheckAt = 0;
+	let useFallback = ! config.endpoint;
 
 	const stop = () => {
 		stopped = true;
@@ -50,18 +54,25 @@
 		const controller = new AbortController();
 		const abortTimer = setTimeout( () => controller.abort(), requestTimeout );
 
-		try {
-			const response = await fetch( config.endpoint, { method: 'POST', body, signal: controller.signal } );
+		let retryNow = false;
 
-			// Invalid order, retrying won't help.
-			if ( response.status >= 400 && response.status < 500 ) {
+		try {
+			const response = await fetch(
+				useFallback ? config.fallback : config.endpoint,
+				{ method: 'POST', body: useFallback ? fallbackBody : body, signal: controller.signal }
+			);
+			const data     = response.ok ? await response.json().catch( () => null ) : null;
+			const hasData  = !! data && 'object' === typeof data && 'status' in data;
+
+			if ( ! useFallback && config.fallback && ( [ 401, 403, 404 ].includes( response.status ) || ( response.ok && ! hasData ) ) ) {
+				// REST API is blocked or doesn't answer with status, e.g. because of security plugins, use admin-ajax instead.
+				useFallback = true;
+				retryNow    = true;
+			} else if ( response.status >= 400 && response.status < 500 ) {
+				// Invalid order, retrying won't help.
 				stop();
 				return;
-			}
-
-			const data = response.ok ? await response.json() : null;
-
-			if ( data && 'pending' !== data.status ) {
+			} else if ( hasData && 'pending' !== data.status ) {
 				stop();
 
 				if ( data.redirect ) {
@@ -77,7 +88,11 @@
 			inFlight = false;
 		}
 
-		schedule();
+		if ( retryNow ) {
+			check();
+		} else {
+			schedule();
+		}
 	};
 
 	// Check right away instead of waiting for the next scheduled check, customer may return after paying on the phone.

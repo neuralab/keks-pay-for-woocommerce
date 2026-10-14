@@ -181,8 +181,8 @@ if ( ! class_exists( 'Kekspay_IPN' ) ) {
 
 			$message = isset( $params['message'] ) ? $params['message'] : '';
 
-			// Ignore repeated or late notifications for orders that are already paid.
-			if ( 'success' === $order->get_meta( 'kekspay_status' ) ) {
+			// Ignore repeated or late notifications for orders that are already paid or refunded.
+			if ( in_array( $order->get_meta( 'kekspay_status' ), [ 'success', 'refunded', 'refunded_partially' ], true ) ) {
 				Kekspay_Logger::log( 'Order ' . $order_id . ' is already paid via KEKS Pay, ignoring IPN with status ' . $status . '.', 'notice' );
 				$this->respond(
 					[

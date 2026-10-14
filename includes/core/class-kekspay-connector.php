@@ -43,11 +43,11 @@ class Kekspay_Connector {
 	 * @param  WC_Order $order
 	 * @param  float    $amount
 	 *
-	 * @return array    [ 'success' => bool, 'message' => string ]
+	 * @return true|WP_Error True on success, WP_Error with failure reason otherwise.
 	 */
 	public static function refund( $order, $amount ) {
-		if ( 'erste-kekspay-woocommerce' !== $order->get_payment_method() ) {
-			return;
+		if ( KEKSPAY_PLUGIN_ID !== $order->get_payment_method() ) {
+			return new WP_Error( 'kekspay_refund_error', __( 'Narudžba nije plaćena putem KEKS Pay servisa.', 'kekspay' ) );
 		}
 
 		$currency = $order->get_currency();
@@ -64,7 +64,7 @@ class Kekspay_Connector {
 
 		$hash = Kekspay_Data::get_hash( $order, $refund_amount, $timestamp );
 		if ( ! $hash ) {
-			return false;
+			return new WP_Error( 'kekspay_refund_error', __( 'Neuspješno kreiranje sigurnosnog potpisa za povrat, provjerite tajni ključ u postavkama KEKS Pay servisa.', 'kekspay' ) );
 		}
 
 		$body = [
@@ -74,30 +74,39 @@ class Kekspay_Connector {
 			'amount'    => $refund_amount,
 			'epochtime' => $timestamp,
 			'hash'      => $hash,
-			'algo'      => Kekspay_Data::get_algo(),
+			'algo'      => Kekspay_Data::get_algo( $order ),
 			'currency'  => $refund_currency,
 		];
 
-		$wc_price = wc_price( $amount, [ 'currency' => $currency ] );
+		$args = self::get_default_args( $body );
+		if ( ! $args ) {
+			Kekspay_Logger::log( 'Failed to encode refund request for order ' . $order->get_id() . '.', 'error' );
+			return new WP_Error( 'kekspay_refund_error', __( 'Neuspješno kreiranje zahtjeva za povrat putem KEKS Pay servisa.', 'kekspay' ) );
+		}
 
-		$response = wp_safe_remote_post( Kekspay_Data::get_kekspay_api_base( $order ) . 'keksrefund', self::get_default_args( $body ) );
-		Kekspay_Logger::log( 'Request sent to refund order ' . $order->get_id() . ' (' . $amount . $order->get_currency() . ') via KEKS Pay.', 'info' );
+		$wc_price  = wc_price( $amount, [ 'currency' => $currency ] );
+		$log_label = 'order ' . $order->get_id() . ' (' . $amount . $currency . ') via KEKS Pay';
+
+		$response = wp_safe_remote_post( Kekspay_Data::get_kekspay_api_base( $order ) . 'keksrefund', $args );
+		Kekspay_Logger::log( 'Request sent to refund ' . $log_label . '.', 'info' );
 
 		if ( is_wp_error( $response ) ) {
 			Kekspay_Logger::log( $response->get_error_message(), 'error' );
-			return false;
+			/* translators: connection error message */
+			return new WP_Error( 'kekspay_refund_error', sprintf( __( 'Neuspješno spajanje na KEKS Pay servis: %s', 'kekspay' ), $response->get_error_message() ) );
 		}
 
 		$status_code = wp_remote_retrieve_response_code( $response );
 		if ( $status_code < 200 || $status_code > 299 ) {
-			Kekspay_Logger::log( 'Refund for order ' . $order->get_id() . ' (' . $amount . $order->get_currency() . ') via KEKS Pay failed, does not have a success status code.', 'error' );
-			return false;
+			Kekspay_Logger::log( 'Refund for ' . $log_label . ' failed, does not have a success status code.', 'error' );
+			/* translators: HTTP status code */
+			return new WP_Error( 'kekspay_refund_error', sprintf( __( 'KEKS Pay servis je odbio zahtjev za povrat (HTTP %d).', 'kekspay' ), $status_code ) );
 		}
 
 		$refund = wp_remote_retrieve_body( $response );
 		if ( ! $refund ) {
-			Kekspay_Logger::log( 'Refund for order ' . $order->get_id() . ' (' . $amount . $order->get_currency() . ') via KEKS Pay failed, body corrupted or missing.', 'error' );
-			return false;
+			Kekspay_Logger::log( 'Refund for ' . $log_label . ' failed, body corrupted or missing.', 'error' );
+			return new WP_Error( 'kekspay_refund_error', __( 'KEKS Pay servis je vratio prazan odgovor na zahtjev za povrat.', 'kekspay' ) );
 		}
 
 		// Log response from refund request.
@@ -108,21 +117,21 @@ class Kekspay_Connector {
 		if ( isset( $response_data->status ) && 0 === $response_data->status ) {
 			/* translators: successful refund */
 			$note = sprintf( __( 'Uspješno izvršen povrat %s via KEKS Pay.', 'kekspay' ), $wc_price );
-			Kekspay_Logger::log( 'Successfully refunded order ' . $order->get_id() . ' (' . $amount . $order->get_currency() . ') via KEKS Pay. Setting status refunded.', 'info' );
+			Kekspay_Logger::log( 'Successfully refunded ' . $log_label . '.', 'info' );
 			$order->add_order_note( $note );
-			$order->update_meta_data( 'kekspay_status', (int) $order->get_remaining_refund_amount() ? 'refunded_partially' : 'refunded' );
+			$order->update_meta_data( 'kekspay_status', 0 < (float) $order->get_remaining_refund_amount() ? 'refunded_partially' : 'refunded' );
 			$order->save();
 
 			return true;
-		} else {
-			/* translators: failed refund */
-			$note    = sprintf( __( 'Dogodila se greška pri povratu %s via KEKS Pay.', 'kekspay' ), $wc_price );
-			$message = isset( $response_data->message ) ? $response_data->message : '';
-			Kekspay_Logger::log( 'Failed to refund order ' . $order->get_id() . ' (' . $amount . $order->get_currency() . ') via KEKS Pay. Message: ' . $message, 'error' );
-			$order->add_order_note( $note );
-			$order->save();
-
-			return false;
 		}
+
+		/* translators: failed refund */
+		$note    = sprintf( __( 'Dogodila se greška pri povratu %s via KEKS Pay.', 'kekspay' ), $wc_price );
+		$message = isset( $response_data->message ) ? sanitize_text_field( $response_data->message ) : '';
+		Kekspay_Logger::log( 'Failed to refund ' . $log_label . '. Message: ' . $message, 'error' );
+		$order->add_order_note( $note );
+		$order->save();
+
+		return new WP_Error( 'kekspay_refund_error', trim( wp_strip_all_tags( $note ) . ' ' . $message ) );
 	}
 }

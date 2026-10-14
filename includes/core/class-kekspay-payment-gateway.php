@@ -225,7 +225,7 @@ if ( ! class_exists( 'Kekspay_Payment_Gateway' ) ) {
 			$order = wc_get_order( $order_id );
 			if ( ! $order ) {
 				Kekspay_Logger::log( 'Failed to find order ' . $order_id . ' while processing refund.', 'warning' );
-				return false;
+				return new WP_Error( 'kekspay_refund_error', __( 'Narudžba nije pronađena.', 'kekspay' ) );
 			}
 
 			return Kekspay_Connector::refund( $order, $amount );

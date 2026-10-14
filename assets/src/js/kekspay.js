@@ -1,83 +1,94 @@
-jQuery( function( $ ) {
-  'use strict';
+// Check KEKS Pay payment status periodically and redirect to confirmation page when payment completes.
+( () => {
+	const config = window.kekspayClientScript;
 
-  if ( ! kekspayClientScript.order_id ) {
-    return;
-  }
+	if ( ! config || ! config.order_id ) {
+		return;
+	}
 
-  var refreshRate = parseInt( kekspayClientScript.ipn_refresh, 10 ) || 5000;
-  var startedAt   = Date.now();
-  var timer       = null;
-  var stopped     = false;
-  var inFlight    = false;
+	const refreshRate    = parseInt( config.ipn_refresh, 10 ) || 5000;
+	const requestTimeout = 10000;
+	const startedAt      = Date.now();
+	const body           = new URLSearchParams( {
+		action: 'kekspay_status_check',
+		_ajax_nonce: config.nonce,
+		order_id: config.order_id,
+		order_key: config.order_key,
+	} );
 
-  // Check every refresh rate (5s by default), slow down after 5min and stop after 1h to prevent infinite requests.
-  function scheduleStatusCheck() {
-    var elapsed = Date.now() - startedAt;
+	let timer    = null;
+	let inFlight = false;
+	let stopped  = false;
 
-    if ( stopped || document.hidden ) {
-      return;
-    }
+	const stop = () => {
+		stopped = true;
+		clearTimeout( timer );
+		timer = null;
+	};
 
-    if ( elapsed > 3600000 ) {
-      stopped = true;
-      return;
-    }
+	// Check every refresh rate (5s by default), slow down after 5min and stop after 1h to prevent infinite requests.
+	const schedule = () => {
+		const elapsed = Date.now() - startedAt;
 
-    timer = setTimeout( statusCheck, elapsed > 300000 ? refreshRate * 3 : refreshRate );
-  }
+		if ( stopped || document.hidden ) {
+			return;
+		}
 
-  // Check kekspay status and redirect to confirmation page when payment completes.
-  function statusCheck() {
-    timer    = null;
-    inFlight = true;
+		if ( elapsed > 3600000 ) {
+			stop();
+			return;
+		}
 
-    $.ajax({
-      method: 'POST',
-      url: kekspayClientScript.ajaxurl,
-      dataType: 'json',
-      data: {
-        'action': 'kekspay_status_check',
-        '_ajax_nonce': kekspayClientScript.nonce,
-        'order_id': kekspayClientScript.order_id,
-        'order_key': kekspayClientScript.order_key
-      }
-    }).always( function() {
-      inFlight = false;
-    }).done( function( response ) {
-      if ( response && 'pending' !== response.status ) {
-        stopped = true;
-        if ( response.redirect ) {
-          window.location.href = response.redirect;
-        }
-        return;
-      }
+		timer = setTimeout( check, elapsed > 300000 ? refreshRate * 3 : refreshRate );
+	};
 
-      scheduleStatusCheck();
-    }).fail( function( response ) {
-      console.log( response ); // error logging
+	const check = async () => {
+		timer    = null;
+		inFlight = true;
 
-      // Invalid order or nonce, retrying won't help.
-      if ( response.status >= 400 && response.status < 500 ) {
-        stopped = true;
-        return;
-      }
+		// Abort hanging requests so polling continues.
+		const controller = new AbortController();
+		const abortTimer = setTimeout( () => controller.abort(), requestTimeout );
 
-      scheduleStatusCheck();
-    });
-  }
+		try {
+			const response = await fetch( config.ajaxurl, { method: 'POST', body, signal: controller.signal } );
 
-  // Pause checking while the tab is hidden and check immediately when it becomes visible again.
-  document.addEventListener( 'visibilitychange', function() {
-    if ( document.hidden ) {
-      clearTimeout( timer );
-      timer = null;
-    } else if ( ! stopped && ! timer && ! inFlight ) {
-      statusCheck();
-    }
-  } );
+			// Invalid order or nonce, retrying won't help.
+			if ( response.status >= 400 && response.status < 500 ) {
+				stop();
+				return;
+			}
 
-  // Check on page load.
-  statusCheck();
+			const data = response.ok ? await response.json() : null;
 
-} );
+			if ( data && 'pending' !== data.status ) {
+				stop();
+
+				if ( data.redirect ) {
+					window.location.assign( data.redirect );
+				}
+
+				return;
+			}
+		} catch ( error ) {
+			// Network error, timeout or invalid response, try again with the next check.
+		} finally {
+			clearTimeout( abortTimer );
+			inFlight = false;
+		}
+
+		schedule();
+	};
+
+	// Pause checking while the tab is hidden and check immediately when it becomes visible again.
+	document.addEventListener( 'visibilitychange', () => {
+		if ( document.hidden ) {
+			clearTimeout( timer );
+			timer = null;
+		} else if ( ! stopped && ! timer && ! inFlight ) {
+			check();
+		}
+	} );
+
+	check();
+} )();

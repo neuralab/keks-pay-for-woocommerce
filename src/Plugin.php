@@ -402,7 +402,16 @@ final class Plugin {
 			return;
 		}
 
-		wp_enqueue_script( 'kekspay-client-script', self::url( 'assets/dist/js/kekspay.js' ), [ 'jquery' ], self::VERSION, true );
+		wp_enqueue_script(
+			'kekspay-client-script',
+			self::url( 'assets/dist/js/kekspay.js' ),
+			[],
+			self::VERSION,
+			[
+				'in_footer' => true,
+				'strategy'  => 'defer',
+			]
+		);
 
 		wp_localize_script(
 			'kekspay-client-script',

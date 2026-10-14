@@ -151,7 +151,7 @@ class IPN {
 	}
 
 	/**
-	 * Return params from JSON request body, or from form data for requests not sending JSON.
+	 * Return params from JSON request body, or from POST and query params for requests not sending JSON.
 	 *
 	 * Only scalar values are kept, all as sanitized strings since values are compared to stored strings.
 	 *
@@ -161,8 +161,8 @@ class IPN {
 		$params = json_decode( (string) file_get_contents( 'php://input' ), true );
 
 		if ( ! is_array( $params ) ) {
-			// External request, authenticated by the token instead of nonce.
-			$params = wp_unslash( $_POST ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			// External request, authenticated by the token instead of nonce. POST params override query params like in $_REQUEST.
+			$params = array_merge( wp_unslash( $_GET ), wp_unslash( $_POST ) ); // phpcs:ignore WordPress.Security.NonceVerification
 		}
 
 		unset( $params['token'] );

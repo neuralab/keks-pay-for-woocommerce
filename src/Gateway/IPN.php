@@ -307,8 +307,8 @@ class IPN {
 		$order_id    = $order->get_id();
 		$paid_status = Data::get_settings( 'payed-order-status' );
 
-		// Ignore statuses that are not paid statuses, could be saved before the setting was limited to them.
-		if ( ! isset( Settings::get_paid_statuses()[ $paid_status ] ) ) {
+		// Ignore statuses not allowed after payment, could be saved before the setting was limited to them.
+		if ( ! isset( Settings::get_payment_complete_statuses()[ $paid_status ] ) ) {
 			$paid_status = '';
 		}
 

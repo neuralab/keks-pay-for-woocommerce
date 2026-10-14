@@ -2,6 +2,11 @@
   <!-- Use Neuralab coding standards. -->
   <rule ref="Neuralab" />
 
+  <!-- Classes in src/ follow PSR-4 file naming required by the Composer autoloader. -->
+  <rule ref="WordPress.Files.FileName">
+    <exclude-pattern>/src/*</exclude-pattern>
+  </rule>
+
   <!-- Exclude some folders from linting. -->
   <exclude-pattern>/assets/*</exclude-pattern>
   <exclude-pattern>/node_modules/*</exclude-pattern>

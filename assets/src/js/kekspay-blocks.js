@@ -1,20 +1,40 @@
-const settings = window.wc.wcSettings.getSetting( kekspayBlocksData.kekspayID + '_data', {} );
-const label    = window.wp.htmlEntities.decodeEntities( settings.title );
+// Wrapped in IIFE since the script is loaded as classic script and its variables should not be global.
+( () => {
+	const { createElement, Fragment } = window.wp.element;
+	const { decodeEntities }          = window.wp.htmlEntities;
 
-const Content = () => {
-	return window.wp.htmlEntities.decodeEntities( settings.description );
-};
+	const settings = window.wc.wcSettings.getSetting( kekspayBlocksData.kekspayID + '_data', {} );
+	const title    = decodeEntities( settings.title || '' );
 
-const Kekspay_Gateway = {
-	name: kekspayBlocksData.kekspayID,
-	label: label,
-	content: Object( window.wp.element.createElement )( Content, null ),
-	edit: Object( window.wp.element.createElement )( Content, null ),
-	canMakePayment: () => true,
-	ariaLabel: label,
-	supports: {
-		features: settings.supports,
-	},
-};
+	const Label = () => {
+		return createElement(
+			'span',
+			{ className: 'kekspay-block-label' },
+			title,
+			settings.icon ? createElement( 'img', { src: settings.icon, alt: '', className: 'kekspay-logo' } ) : null
+		);
+	};
 
-window.wc.wcBlocksRegistry.registerPaymentMethod( Kekspay_Gateway );
+	const Content = () => {
+		return createElement(
+			Fragment,
+			null,
+			createElement( 'p', null, decodeEntities( settings.description || '' ) ),
+			settings.testModeNotice ? createElement( 'p', null, createElement( 'b', null, decodeEntities( settings.testModeNotice ) ) ) : null
+		);
+	};
+
+	const Kekspay_Gateway = {
+		name: kekspayBlocksData.kekspayID,
+		label: createElement( Label, null ),
+		content: createElement( Content, null ),
+		edit: createElement( Content, null ),
+		canMakePayment: () => true,
+		ariaLabel: title,
+		supports: {
+			features: settings.supports,
+		},
+	};
+
+	window.wc.wcBlocksRegistry.registerPaymentMethod( Kekspay_Gateway );
+} )();

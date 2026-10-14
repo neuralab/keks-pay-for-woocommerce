@@ -6,13 +6,29 @@ jobs:
   tag:
     name: New release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
+    - name: Setup Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22
+        cache: npm
     - name: Build assets
       run: |
-        npm install
-        npx mix --production
+        npm ci
+        npm run build
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+        tools: composer:v2
+    - name: Install PHP dependencies
+      run: composer install --no-dev --no-interaction --prefer-dist
+    - name: Verify PHP dependencies are installed
+      run: test -f vendor/autoload.php
     - name: WordPress Plugin Deploy
       id: deploy
       uses: 10up/action-wordpress-plugin-deploy@stable
@@ -22,11 +38,6 @@ jobs:
         SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
         SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
     - name: Upload release asset
-      uses: actions/upload-release-asset@v1
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ github.event.release.upload_url }}
-        asset_path: ${{github.workspace}}/${{ github.event.repository.name }}.zip
-        asset_name: ${{ github.event.repository.name }}.zip
-        asset_content_type: application/zip
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: gh release upload ${{ github.event.release.tag_name }} ${{ steps.deploy.outputs.zip-path }}

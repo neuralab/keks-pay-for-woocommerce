@@ -60,7 +60,7 @@ class Legacy_Aliases {
 		}
 
 		if ( function_exists( '_deprecated_class' ) ) {
-			_deprecated_class( $class_name, '2.3.0', self::ALIASES[ $class_name ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			_deprecated_class( $class_name, '3.0.0', self::ALIASES[ $class_name ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
 		class_alias( self::ALIASES[ $class_name ], $class_name );

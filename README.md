@@ -41,7 +41,7 @@ PHP dependencies are not committed. Run `composer install` to install them and g
 
 `woocommerce-gateway-kekspay.php` only bootstraps the plugin, `Kekspay\Plugin` registers hooks and provides the gateway ID, version and paths (`Plugin::ID`, `Plugin::VERSION`, `Plugin::path()`, `Plugin::url()`).
 
-Global class names and constants used before namespaces (`WC_Kekspay`, `Kekspay_Data`, `KEKSPAY_PLUGIN_ID`, ...) still work through deprecated aliases in `Kekspay\Legacy_Aliases` and the main plugin file, remove them in the next major version.
+Global class names and constants used before namespaces (`WC_Kekspay`, `Kekspay_Data`, `KEKSPAY_PLUGIN_ID`, ...) are deprecated since 3.0.0 but still work through aliases in `Kekspay\Legacy_Aliases` and the main plugin file, remove them in 4.0.0.
 
 Other plugins may bundle `chillerlan/php-qrcode` and their copy can be loaded instead of ours, so `Kekspay\Gateway\Sell` detects the loaded version (v4, v5 or v6) and builds QR code options accordingly. When a new major version is released, add support for it there and widen the version constraint in `composer.json`.
 

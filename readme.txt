@@ -4,7 +4,7 @@ Tags: kekspay, woocommerce, gateway, payment
 Requires at least: 6.3
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 2.2.0
+Stable tag: 3.0.0
 License: GPL v3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -48,6 +48,19 @@ On a side note, this plugin is provided “as-is” and we don't currently provi
 For more installation options check the [official WordPress documentation](https://wordpress.org/support/article/managing-plugins/#manual-plugin-installation) about installing plugins.
 
 == Changelog ==
+
+= 3.0.0 =
+* Ignore repeated or late payment notifications for already paid or refunded orders.
+* Complete payments using WooCommerce payment_complete(), KEKS Pay ID is now stored as the transaction ID.
+* Use the mode (test or live) the order was paid in for refunds and payment notifications.
+* Show the reason of a failed refund and fix partial refunds under 1 EUR being marked as full refunds.
+* Fix fatal error on order pay page with invalid order ID.
+* Use configured title, logo and test mode notice in block checkout.
+* Support chillerlan/php-qrcode v4, v5 and v6 loaded by other plugins.
+* Poll payment status less aggressively.
+* Show admin notices only on WooCommerce and plugins screens.
+* Change text domain to keks-pay-for-woocommerce.
+* Move plugin classes to the Kekspay namespace, old class names and constants are deprecated.
 
 = 2.2.0 =
 * Fix test mode notices.

@@ -10,7 +10,6 @@ phpcs.xml
 composer.json
 composer.lock
 README.md
-license.txt
 package.json
 package-lock.json
 mix-manifest.json

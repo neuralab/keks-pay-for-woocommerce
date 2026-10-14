@@ -15,27 +15,27 @@ msgstr ""
 "X-Domain: keks-pay-for-woocommerce\n"
 
 #. Plugin Name of the plugin
-#: D:\www-neuralab\kekspay\wp-content\plugins\keks-pay-for-woocommerce\woocommerce-gateway-kekspay.php
+#: woocommerce-gateway-kekspay.php
 msgid "KEKS Pay for WooCommerce"
 msgstr ""
 
 #. Plugin URI of the plugin
-#: D:\www-neuralab\kekspay\wp-content\plugins\keks-pay-for-woocommerce\woocommerce-gateway-kekspay.php
+#: woocommerce-gateway-kekspay.php
 msgid "https://www.kekspay.hr/"
 msgstr ""
 
 #. Description of the plugin
-#: D:\www-neuralab\kekspay\wp-content\plugins\keks-pay-for-woocommerce\woocommerce-gateway-kekspay.php
+#: woocommerce-gateway-kekspay.php
 msgid "Incredibly fast and user friendly payment method created by Erste Bank Croatia."
 msgstr ""
 
 #. Author of the plugin
-#: D:\www-neuralab\kekspay\wp-content\plugins\keks-pay-for-woocommerce\woocommerce-gateway-kekspay.php
+#: woocommerce-gateway-kekspay.php
 msgid "Erste bank Croatia"
 msgstr ""
 
 #. Author URI of the plugin
-#: D:\www-neuralab\kekspay\wp-content\plugins\keks-pay-for-woocommerce\woocommerce-gateway-kekspay.php
+#: woocommerce-gateway-kekspay.php
 msgid "https://www.erstebank.hr/hr/gradjanstvo"
 msgstr ""
 

@@ -373,7 +373,16 @@ final class Plugin {
 			$section = filter_input( INPUT_GET, 'section', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 
 			if ( $section && self::ID === $section ) {
-				wp_enqueue_script( 'kekspay-admin-script', self::url( 'assets/dist/js/kekspay-admin.js' ), [ 'jquery' ], self::VERSION, true );
+				wp_enqueue_script(
+					'kekspay-admin-script',
+					self::url( 'assets/dist/js/kekspay-admin.js' ),
+					[],
+					self::VERSION,
+					[
+						'in_footer' => true,
+						'strategy'  => 'defer',
+					]
+				);
 			}
 		}
 	}

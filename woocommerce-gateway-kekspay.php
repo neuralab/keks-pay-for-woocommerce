@@ -357,7 +357,10 @@ if ( ! class_exists( 'WC_Kekspay' ) ) {
 		 * @return bool
 		 */
 		public static function delete_settings() {
-			return delete_option( 'woocommerce_' . KEKSPAY_PLUGIN_ID . '_settings' ) && delete_option( 'kekspay_plugins_check_required' );
+			$settings_deleted = delete_option( 'woocommerce_' . KEKSPAY_PLUGIN_ID . '_settings' );
+			$check_deleted    = delete_option( 'kekspay_plugins_check_required' );
+
+			return $settings_deleted && $check_deleted;
 		}
 
 		/**

@@ -22,6 +22,7 @@ class Legacy_Aliases {
 	 * @var array
 	 */
 	const ALIASES = [
+		'WC_Kekspay'              => Plugin::class,
 		'Kekspay_Payment_Gateway' => Gateway\Payment_Gateway::class,
 		'Kekspay_Block_Checkout'  => Gateway\Block_Checkout::class,
 		'Kekspay_IPN'             => Gateway\IPN::class,

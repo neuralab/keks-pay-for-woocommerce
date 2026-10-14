@@ -7,6 +7,8 @@
 
 namespace Kekspay\Utilities;
 
+use Kekspay\Plugin;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -63,7 +65,7 @@ class Data {
 	 * @return void
 	 */
 	public static function load_settings() {
-		self::$settings = get_option( 'woocommerce_' . KEKSPAY_PLUGIN_ID . '_settings', [] );
+		self::$settings = get_option( 'woocommerce_' . Plugin::ID . '_settings', [] );
 	}
 
 	/**
@@ -74,7 +76,7 @@ class Data {
 	 * @return void
 	 */
 	public static function set_settings( $settings ) {
-		update_option( 'woocommerce_' . KEKSPAY_PLUGIN_ID . '_settings', array_merge( self::get_settings(), $settings ) );
+		update_option( 'woocommerce_' . Plugin::ID . '_settings', array_merge( self::get_settings(), $settings ) );
 	}
 
 	/**
@@ -194,11 +196,11 @@ class Data {
 	 * @return string|false SVG markup, false if file does not exist.
 	 */
 	public static function get_svg( $svg ) {
-		if ( ! $svg || ! file_exists( KEKSPAY_DIR_PATH . 'assets/dist/img/' . $svg . '.svg' ) ) {
+		if ( ! $svg || ! file_exists( Plugin::path( 'assets/dist/img/' ) . $svg . '.svg' ) ) {
 			return false;
 		}
 
-		return file_get_contents( KEKSPAY_DIR_PATH . 'assets/dist/img/' . $svg . '.svg' ); // @codingStandardsIgnoreLine - safe use of file_get_contents
+		return file_get_contents( Plugin::path( 'assets/dist/img/' ) . $svg . '.svg' ); // @codingStandardsIgnoreLine - safe use of file_get_contents
 	}
 
 	/**

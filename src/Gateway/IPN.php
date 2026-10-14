@@ -7,6 +7,7 @@
 
 namespace Kekspay\Gateway;
 
+use Kekspay\Plugin;
 use Kekspay\Utilities\Data;
 use Kekspay\Utilities\Logger;
 
@@ -110,7 +111,7 @@ class IPN {
 		$order_key = filter_input( INPUT_POST, 'order_key', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 		$order     = $order_id ? wc_get_order( $order_id ) : false;
 
-		if ( ! $order || KEKSPAY_PLUGIN_ID !== $order->get_payment_method() || ! $order_key || ! hash_equals( $order->get_order_key(), $order_key ) ) {
+		if ( ! $order || Plugin::ID !== $order->get_payment_method() || ! $order_key || ! hash_equals( $order->get_order_key(), $order_key ) ) {
 			$this->respond_error( 'Invalid order.' );
 		}
 
@@ -176,7 +177,7 @@ class IPN {
 			$this->respond_error( 'Couldn\'t find corresponding order ' . $params['bill_id'] . '.' );
 		}
 
-		if ( KEKSPAY_PLUGIN_ID !== $order->get_payment_method() ) {
+		if ( Plugin::ID !== $order->get_payment_method() ) {
 			Logger::log( 'Order ' . $order_id . ' from the request for IPN was not placed using KEKS Pay.', 'error' );
 			$this->respond_error( 'Order ' . $params['bill_id'] . ' was not placed using KEKS Pay.' );
 		}

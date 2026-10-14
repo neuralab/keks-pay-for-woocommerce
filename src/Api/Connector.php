@@ -7,6 +7,7 @@
 
 namespace Kekspay\Api;
 
+use Kekspay\Plugin;
 use Kekspay\Utilities\Data;
 use Kekspay\Utilities\Logger;
 
@@ -55,7 +56,7 @@ class Connector {
 	 * @return true|WP_Error True on success, WP_Error with failure reason otherwise.
 	 */
 	public static function refund( $order, $amount ) {
-		if ( KEKSPAY_PLUGIN_ID !== $order->get_payment_method() ) {
+		if ( Plugin::ID !== $order->get_payment_method() ) {
 			return new \WP_Error( 'kekspay_refund_error', __( 'Narudžba nije plaćena putem KEKS Pay servisa.', 'keks-pay-for-woocommerce' ) );
 		}
 

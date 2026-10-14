@@ -8,6 +8,7 @@
 namespace Kekspay\Gateway;
 
 use Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType;
+use Kekspay\Plugin;
 use Kekspay\Utilities\Data;
 
 defined( 'ABSPATH' ) || exit;
@@ -15,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
 final class Block_Checkout extends AbstractPaymentMethodType {
 	private $gateway;
 
-	protected $name = KEKSPAY_PLUGIN_ID;
+	protected $name = Plugin::ID;
 
 	public function initialize() {
 		$this->settings = Data::get_settings();
@@ -31,7 +32,7 @@ final class Block_Checkout extends AbstractPaymentMethodType {
 
 		wp_register_script(
 			'kekspay-blocks-script',
-			KEKSPAY_DIR_URL . 'assets/dist/js/kekspay-blocks.js',
+			Plugin::url( 'assets/dist/js/kekspay-blocks.js' ),
 			[
 				'wc-blocks-registry',
 				'wc-settings',
@@ -39,7 +40,7 @@ final class Block_Checkout extends AbstractPaymentMethodType {
 				'wp-html-entities',
 				'wp-i18n',
 			],
-			KEKSPAY_PLUGIN_VERSION,
+			Plugin::VERSION,
 			true
 		);
 
@@ -48,7 +49,7 @@ final class Block_Checkout extends AbstractPaymentMethodType {
 				'kekspay-blocks-script',
 				'kekspayBlocksData',
 				[
-					'kekspayID' => KEKSPAY_PLUGIN_ID,
+					'kekspayID' => Plugin::ID,
 				]
 			);
 
@@ -62,7 +63,7 @@ final class Block_Checkout extends AbstractPaymentMethodType {
 		return [
 			'title'          => $this->gateway->title,
 			'description'    => $this->gateway->method_description,
-			'icon'           => KEKSPAY_DIR_URL . 'assets/dist/img/keks-logo.svg',
+			'icon'           => Plugin::url( 'assets/dist/img/keks-logo.svg' ),
 			'testModeNotice' => Data::test_mode() ? __( 'KEKS Pay je trenutno u testom načinu rada, ne zaboravite ga ugasiti po završetku testiranja.', 'keks-pay-for-woocommerce' ) : '',
 			'supports'       => array_values( array_filter( $this->gateway->supports, [ $this->gateway, 'supports' ] ) ),
 		];

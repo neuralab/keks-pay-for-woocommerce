@@ -7,6 +7,8 @@
 
 namespace Kekspay\Utilities;
 
+use Kekspay\Plugin;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -59,9 +61,9 @@ class Logger {
 
 		$logger->log(
 			$level,
-			'Kekspay v' . KEKSPAY_PLUGIN_VERSION . ' - ' . $message,
+			'Kekspay v' . Plugin::VERSION . ' - ' . $message,
 			[
-				'source' => KEKSPAY_PLUGIN_ID,
+				'source' => Plugin::ID,
 			]
 		);
 

@@ -8,6 +8,7 @@
 namespace Kekspay\Gateway;
 
 use Kekspay\Api\Connector;
+use Kekspay\Plugin;
 use Kekspay\Utilities\Data;
 use Kekspay\Utilities\Logger;
 
@@ -35,7 +36,7 @@ class Payment_Gateway extends \WC_Payment_Gateway {
 	 * Class constructor with basic gateway's setup.
 	 */
 	public function __construct() {
-		$this->id                 = KEKSPAY_PLUGIN_ID;
+		$this->id                 = Plugin::ID;
 		$this->method_title       = __( 'KEKS Pay', 'keks-pay-for-woocommerce' );
 		$this->method_description = __( 'Najbrže i bez naknada putem KEKS Pay aplikacije!', 'keks-pay-for-woocommerce' );
 		$this->has_fields         = true;

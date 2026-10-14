@@ -19,13 +19,6 @@ defined( 'ABSPATH' ) || exit;
  */
 class Payment_Gateway extends \WC_Payment_Gateway {
 	/**
-	 * Instance of the current class, null before first usage.
-	 *
-	 * @var Payment_Gateway
-	 */
-	protected static $instance = null;
-
-	/**
 	 * App data handler.
 	 *
 	 * @var Sell
@@ -48,11 +41,9 @@ class Payment_Gateway extends \WC_Payment_Gateway {
 
 		$this->sell = new Sell();
 
-		$this->title = esc_attr( Data::get_settings( 'title' ) );
+		$this->title = $this->get_option( 'title' );
 
 		$this->add_hooks();
-
-		self::$instance = $this;
 	}
 
 	/**
@@ -61,9 +52,7 @@ class Payment_Gateway extends \WC_Payment_Gateway {
 	private function add_hooks() {
 		add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, [ $this, 'process_admin_options' ] );
 
-		if ( ! self::$instance ) {
-			add_action( 'woocommerce_receipt_' . $this->id, [ $this, 'do_receipt_page' ] );
-		}
+		add_action( 'woocommerce_receipt_' . $this->id, [ $this, 'do_receipt_page' ] );
 	}
 
 	/**
@@ -272,15 +261,13 @@ class Payment_Gateway extends \WC_Payment_Gateway {
 	}
 
 	/**
-	 * Return class instance.
+	 * Return gateway instance created by WooCommerce.
 	 *
-	 * @static
-	 * @return Payment_Gateway
+	 * @return Payment_Gateway|null Null if WooCommerce has no KEKS Pay gateway or it's registered by another plugin.
 	 */
 	public static function get_instance() {
-		if ( is_null( self::$instance ) ) {
-			self::$instance = new self();
-		}
-		return self::$instance;
+		$gateways = WC()->payment_gateways()->payment_gateways();
+
+		return isset( $gateways[ Plugin::ID ] ) && $gateways[ Plugin::ID ] instanceof self ? $gateways[ Plugin::ID ] : null;
 	}
 }

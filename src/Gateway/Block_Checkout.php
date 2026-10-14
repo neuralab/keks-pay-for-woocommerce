@@ -24,7 +24,7 @@ final class Block_Checkout extends AbstractPaymentMethodType {
 	}
 
 	public function is_active() {
-		return $this->gateway->is_available();
+		return $this->gateway && $this->gateway->is_available();
 	}
 
 	public function get_payment_method_script_handles() {
@@ -60,6 +60,10 @@ final class Block_Checkout extends AbstractPaymentMethodType {
 	}
 
 	public function get_payment_method_data() {
+		if ( ! $this->gateway ) {
+			return [];
+		}
+
 		return [
 			'title'          => $this->gateway->title,
 			'description'    => $this->gateway->method_description,

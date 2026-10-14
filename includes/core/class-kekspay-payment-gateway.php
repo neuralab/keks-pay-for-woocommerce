@@ -15,7 +15,7 @@ if ( ! class_exists( 'Kekspay_Payment_Gateway' ) ) {
 		/**
 		 * Instance of the current class, null before first usage.
 		 *
-		 * @var WC_Kekspay
+		 * @var Kekspay_Payment_Gateway
 		 */
 		protected static $instance = null;
 
@@ -79,7 +79,7 @@ if ( ! class_exists( 'Kekspay_Payment_Gateway' ) ) {
 		 * @override
 		 */
 		public function get_icon() {
-			return apply_filters( 'woocommerce_gateway_icon', Kekspay_Data::get_svg( 'keks-logo', [ 'class="kekspay-logo"' ] ), $this->id );
+			return apply_filters( 'woocommerce_gateway_icon', Kekspay_Data::get_svg( 'keks-logo' ), $this->id );
 		}
 
 		/**
@@ -216,7 +216,7 @@ if ( ! class_exists( 'Kekspay_Payment_Gateway' ) ) {
 		 * @param  float  $amount   Defaults to null.
 		 * @param  string $reason   Defaults to empty string.
 		 *
-		 * @return bool             True or false based on success, or a WP_Error object.
+		 * @return true|WP_Error     True on success, WP_Error with failure reason otherwise.
 		 */
 		public function process_refund( $order_id, $amount = null, $reason = '' ) {
 			$order = wc_get_order( $order_id );

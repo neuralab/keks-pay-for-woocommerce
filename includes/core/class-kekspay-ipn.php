@@ -115,7 +115,7 @@ if ( ! class_exists( 'Kekspay_IPN' ) ) {
 
 			if ( 'failed' === $status ) {
 				/* translators: payment failed on checkout QR scanning */
-				wc_add_notice( sprintf( __( 'Nešto je pošlo po zlu pri pokušaju naplate vaše narudžbe (#%d) putem KEKS Pay servisa, molimo pokušajte ponoviti narudžbu ili kontaktirajte administratora web trgovine za više informacija.' ), $order->get_id() ), 'error' );
+				wc_add_notice( sprintf( __( 'Nešto je pošlo po zlu pri pokušaju naplate vaše narudžbe (#%d) putem KEKS Pay servisa, molimo pokušajte ponoviti narudžbu ili kontaktirajte administratora web trgovine za više informacija.', 'kekspay' ), $order->get_id() ), 'error' );
 				$response['redirect'] = $order->get_cancel_order_url_raw();
 			} elseif ( 'success' === $status ) {
 				$response['redirect'] = $order->get_checkout_order_received_url();

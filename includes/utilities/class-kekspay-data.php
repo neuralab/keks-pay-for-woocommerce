@@ -3,8 +3,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use chillerlan\QRCode\{ QRCode, QROptions };
-
 if ( ! class_exists( 'Kekspay_Data' ) ) {
 	/**
 	 * Kekspay_Data class
@@ -13,7 +11,7 @@ if ( ! class_exists( 'Kekspay_Data' ) ) {
 	 */
 	class Kekspay_Data {
 		/**
-		 * Whether or not logging is enabled.
+		 * Gateway settings loaded from the database.
 		 *
 		 * @var array
 		 */
@@ -65,6 +63,8 @@ if ( ! class_exists( 'Kekspay_Data' ) ) {
 
 		/**
 		 * Save gateway settings to the database.
+		 *
+		 * @param array $settings Settings to merge with the existing ones.
 		 *
 		 * @return void
 		 */
@@ -135,7 +135,7 @@ if ( ! class_exists( 'Kekspay_Data' ) ) {
 		 * @param string $name       Name of specific setting to fetch.
 		 * @param bool   $test_check Whether to check if test mode is on to fetch test version of the setting.
 		 *
-		 * @return array/string
+		 * @return array|string|null
 		 */
 		public static function get_settings( $name = false, $test_check = false ) {
 			if ( empty( self::$settings ) ) {
@@ -182,11 +182,11 @@ if ( ! class_exists( 'Kekspay_Data' ) ) {
 		}
 
 		/**
-		 * Return auth token or generate if there is none.
+		 * Return contents of the SVG file from the plugin's images folder.
 		 *
-		 * @param bool $absolute Wheter to fetch full url with endpoint or only the endpoint.
+		 * @param string $svg SVG file name without extension.
 		 *
-		 * @return string
+		 * @return string|false SVG markup, false if file does not exist.
 		 */
 		public static function get_svg( $svg ) {
 			if ( ! $svg || ! file_exists( KEKSPAY_DIR_PATH . 'assets/dist/img/' . $svg . '.svg' ) ) {
@@ -347,9 +347,10 @@ if ( ! class_exists( 'Kekspay_Data' ) ) {
 		 * Return hash created from the provided data and secret.
 		 *
 		 * @param  object $order     Order from which to extract data for hash.
+		 * @param  string $amount    Amount used for creating hash.
 		 * @param  string $timestamp Timestamp for creating hash.
 		 *
-		 * @return string
+		 * @return string|false Hash, false on failure.
 		 */
 		public static function get_hash( $order, $amount, $timestamp ) {
 			try {

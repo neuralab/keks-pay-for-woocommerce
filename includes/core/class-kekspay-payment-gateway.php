@@ -31,8 +31,8 @@ if ( ! class_exists( 'Kekspay_Payment_Gateway' ) ) {
 		 */
 		public function __construct() {
 			$this->id                 = KEKSPAY_PLUGIN_ID;
-			$this->method_title       = __( 'KEKS Pay', 'kekspay' );
-			$this->method_description = __( 'Najbrže i bez naknada putem KEKS Pay aplikacije!', 'kekspay' );
+			$this->method_title       = __( 'KEKS Pay', 'keks-pay-for-woocommerce' );
+			$this->method_description = __( 'Najbrže i bez naknada putem KEKS Pay aplikacije!', 'keks-pay-for-woocommerce' );
 			$this->has_fields         = true;
 
 			$this->init_form_fields();
@@ -89,7 +89,7 @@ if ( ! class_exists( 'Kekspay_Payment_Gateway' ) ) {
 		 */
 		public function admin_options() {
 			?>
-			<h2><?php esc_html_e( 'KEKS Pay', 'kekspay' ); ?></h2>
+			<h2><?php esc_html_e( 'KEKS Pay', 'keks-pay-for-woocommerce' ); ?></h2>
 
 			<table class="form-table">
 				<?php $this->generate_settings_html(); ?>
@@ -113,13 +113,13 @@ if ( ! class_exists( 'Kekspay_Payment_Gateway' ) ) {
 		 * @override
 		 */
 		public function payment_fields() {
-			echo wp_kses_post( '<p>' . __( 'Najbrže i bez naknada putem KEKS Pay aplikacije!', 'kekspay' ) . '</p>' );
+			echo wp_kses_post( '<p>' . __( 'Najbrže i bez naknada putem KEKS Pay aplikacije!', 'keks-pay-for-woocommerce' ) . '</p>' );
 
 			if ( Kekspay_Data::test_mode() ) {
 				echo wp_kses_post(
 					apply_filters(
 						'kekspay_payment_description_test_mode_notice',
-						'<p><b>' . __( 'KEKS Pay je trenutno u testom načinu rada, ne zaboravite ga ugasiti po završetku testiranja.', 'kekspay' ) . '</b></p>'
+						'<p><b>' . __( 'KEKS Pay je trenutno u testom načinu rada, ne zaboravite ga ugasiti po završetku testiranja.', 'keks-pay-for-woocommerce' ) . '</b></p>'
 					)
 				);
 			}
@@ -146,7 +146,7 @@ if ( ! class_exists( 'Kekspay_Payment_Gateway' ) ) {
 
 			// Keep order's test mode flag in sync with the mode used for the payment, refunds and IPN rely on it.
 			if ( Kekspay_Data::test_mode() && ! Kekspay_Data::order_test_mode( $order ) ) {
-				$order->add_order_note( __( 'Narudžba napravljena u testnom načinu rada!', 'kekspay' ) );
+				$order->add_order_note( __( 'Narudžba napravljena u testnom načinu rada!', 'keks-pay-for-woocommerce' ) );
 				$order->update_meta_data( 'kekspay_test_mode', 'yes' );
 				$order->save();
 			} elseif ( ! Kekspay_Data::test_mode() && Kekspay_Data::order_test_mode( $order ) ) {
@@ -168,17 +168,17 @@ if ( ! class_exists( 'Kekspay_Payment_Gateway' ) ) {
 				<div class="kekspay-qr">
 					<div class="kekspay-qr__instructions">
 						<ol>
-							<li><?php esc_html_e( 'Otvori KEKS Pay', 'kekspay' ); ?></li>
+							<li><?php esc_html_e( 'Otvori KEKS Pay', 'keks-pay-for-woocommerce' ); ?></li>
 							<?php /* translators: kekspay in-app icon */ ?>
-							<li><?php printf( __( 'Pritisni %s ikonicu', 'kekspay' ), Kekspay_Data::get_svg( 'icon-pay' ) ?: esc_html__( 'keks logo', 'kekspay' ) ); ?></li>
-							<li><?php esc_html_e( 'Odaberi "Skeniraj QR kȏd"', 'kekspay' ); ?></li>
-							<li><?php esc_html_e( 'Skeniraj QR kȏd', 'kekspay' ); ?></li>
+							<li><?php printf( __( 'Pritisni %s ikonicu', 'keks-pay-for-woocommerce' ), Kekspay_Data::get_svg( 'icon-pay' ) ?: esc_html__( 'keks logo', 'keks-pay-for-woocommerce' ) ); ?></li>
+							<li><?php esc_html_e( 'Odaberi "Skeniraj QR kȏd"', 'keks-pay-for-woocommerce' ); ?></li>
+							<li><?php esc_html_e( 'Skeniraj QR kȏd', 'keks-pay-for-woocommerce' ); ?></li>
 						</ol>
 					</div>
 					<?php echo $this->sell->display_sell_qr( $order ); //@codingStandardsIgnoreLine - safe output ?>
 				</div>
 			</div>
-			<a class="kekspay-cancel" href="<?php echo esc_attr( $order->get_cancel_order_url_raw() ); ?>"><?php esc_html_e( 'Otkaži', 'kekspay' ); ?></a>
+			<a class="kekspay-cancel" href="<?php echo esc_attr( $order->get_cancel_order_url_raw() ); ?>"><?php esc_html_e( 'Otkaži', 'keks-pay-for-woocommerce' ); ?></a>
 			<?php
 
 			do_action( 'kekspay_receipt_after_payment_data', $order, Kekspay_Data::get_settings() );
@@ -222,7 +222,7 @@ if ( ! class_exists( 'Kekspay_Payment_Gateway' ) ) {
 			$order = wc_get_order( $order_id );
 			if ( ! $order ) {
 				Kekspay_Logger::log( 'Failed to find order ' . $order_id . ' while processing refund.', 'warning' );
-				return new WP_Error( 'kekspay_refund_error', __( 'Narudžba nije pronađena.', 'kekspay' ) );
+				return new WP_Error( 'kekspay_refund_error', __( 'Narudžba nije pronađena.', 'keks-pay-for-woocommerce' ) );
 			}
 
 			return Kekspay_Connector::refund( $order, $amount );

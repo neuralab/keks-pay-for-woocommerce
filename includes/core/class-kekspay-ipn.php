@@ -115,7 +115,7 @@ if ( ! class_exists( 'Kekspay_IPN' ) ) {
 
 			if ( 'failed' === $status ) {
 				/* translators: payment failed on checkout QR scanning */
-				wc_add_notice( sprintf( __( 'Nešto je pošlo po zlu pri pokušaju naplate vaše narudžbe (#%d) putem KEKS Pay servisa, molimo pokušajte ponoviti narudžbu ili kontaktirajte administratora web trgovine za više informacija.', 'kekspay' ), $order->get_id() ), 'error' );
+				wc_add_notice( sprintf( __( 'Nešto je pošlo po zlu pri pokušaju naplate vaše narudžbe (#%d) putem KEKS Pay servisa, molimo pokušajte ponoviti narudžbu ili kontaktirajte administratora web trgovine za više informacija.', 'keks-pay-for-woocommerce' ), $order->get_id() ), 'error' );
 				$response['redirect'] = $order->get_cancel_order_url_raw();
 			} elseif ( 'success' === $status ) {
 				$response['redirect'] = $order->get_checkout_order_received_url();
@@ -197,7 +197,7 @@ if ( ! class_exists( 'Kekspay_IPN' ) ) {
 
 				$order->update_meta_data( 'kekspay_status', 'success' );
 				$order->update_meta_data( 'kekspay_id', $params['keks_id'] );
-				$order->add_order_note( __( 'Narudžba uspješno plaćena putem KEKS Pay aplikacije.', 'kekspay' ) );
+				$order->add_order_note( __( 'Narudžba uspješno plaćena putem KEKS Pay aplikacije.', 'keks-pay-for-woocommerce' ) );
 
 				$paid_status = Kekspay_Data::get_settings( 'payed-order-status' );
 				$set_status  = function( $status, $id ) use ( $order_id, $paid_status ) {
@@ -212,7 +212,7 @@ if ( ! class_exists( 'Kekspay_IPN' ) ) {
 			} else {
 				Kekspay_Logger::log( 'KEKS Pay failed to complete payment for order ' . $order_id . ', message: ' . $message, 'error' );
 				$order->update_meta_data( 'kekspay_status', 'failed' );
-				$order->add_order_note( __( 'Dogodila se greška pri naplati putem KEKS Pay aplikacije.', 'kekspay' ) );
+				$order->add_order_note( __( 'Dogodila se greška pri naplati putem KEKS Pay aplikacije.', 'keks-pay-for-woocommerce' ) );
 				$order->save();
 			}
 

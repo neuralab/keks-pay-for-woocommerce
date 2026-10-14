@@ -1,117 +1,162 @@
-# Copyright (C) 2023 Erste bank Croatia
+# Copyright (C) 2026 Erste bank Croatia
 # This file is distributed under the GPL v3 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: KEKS Pay for WooCommerce 1.0.12\n"
+"Project-Id-Version: KEKS Pay for WooCommerce 2.2.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/keks-pay-for-woocommerce\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2023-01-03T08:29:14+00:00\n"
+"POT-Creation-Date: 2026-10-14T14:34:48+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"X-Generator: WP-CLI 2.5.0\n"
-"X-Domain: kekspay\n"
+"X-Generator: WP-CLI 2.10.0\n"
+"X-Domain: keks-pay-for-woocommerce\n"
 
 #. Plugin Name of the plugin
+#: D:\www-neuralab\kekspay\wp-content\plugins\keks-pay-for-woocommerce\woocommerce-gateway-kekspay.php
 msgid "KEKS Pay for WooCommerce"
 msgstr ""
 
 #. Plugin URI of the plugin
+#: D:\www-neuralab\kekspay\wp-content\plugins\keks-pay-for-woocommerce\woocommerce-gateway-kekspay.php
 msgid "https://www.kekspay.hr/"
 msgstr ""
 
 #. Description of the plugin
-msgid "Incredible fast and user friendly payment method created by Erste Bank Croatia."
+#: D:\www-neuralab\kekspay\wp-content\plugins\keks-pay-for-woocommerce\woocommerce-gateway-kekspay.php
+msgid "Incredibly fast and user friendly payment method created by Erste Bank Croatia."
 msgstr ""
 
 #. Author of the plugin
+#: D:\www-neuralab\kekspay\wp-content\plugins\keks-pay-for-woocommerce\woocommerce-gateway-kekspay.php
 msgid "Erste bank Croatia"
 msgstr ""
 
 #. Author URI of the plugin
+#: D:\www-neuralab\kekspay\wp-content\plugins\keks-pay-for-woocommerce\woocommerce-gateway-kekspay.php
 msgid "https://www.erstebank.hr/hr/gradjanstvo"
 msgstr ""
 
-#: includes/core/class-kekspay-connector.php:107
-msgid "Uspješno izvršen povrat %s via KEKS Pay."
-msgstr ""
-
-#: includes/core/class-kekspay-connector.php:115
-msgid "Dogodila se greška pri povratu %s via KEKS Pay."
-msgstr ""
-
-#: includes/core/class-kekspay-ipn.php:161
-msgid "Narudžba uspješno plaćena putem KEKS Pay aplikacije."
-msgstr ""
-
-#: includes/core/class-kekspay-ipn.php:168
-msgid "Dogodila se greška pri naplati putem KEKS Pay aplikacije."
-msgstr ""
-
-#: includes/core/class-kekspay-order-admin.php:40
-msgid "Narudžba kreirana koristeći KEKS Pay u testnom načinu rada."
-msgstr ""
-
-#: includes/core/class-kekspay-order-admin.php:47
-msgid "KEKS Pay - Narudžba naplaćena u valuti HRK koja više nije podržana od strane KEKS Pay sustava. Ako želite napraviti povrat novca kroz KEKS Pay sustav, iznos za povrat prije povrata preračunati će se u EUR prema tečaju 7.5345 te biti vraćen u valuti EUR."
-msgstr ""
-
-#: includes/core/class-kekspay-payment-gateway.php:31
-#: includes/core/class-kekspay-payment-gateway.php:85
-msgid "KEKS Pay"
-msgstr ""
-
-#: includes/core/class-kekspay-payment-gateway.php:32
-#: includes/core/class-kekspay-payment-gateway.php:109
-msgid "Najbrže i bez naknada putem KEKS Pay aplikacije!"
-msgstr ""
-
-#: includes/core/class-kekspay-payment-gateway.php:114
-#: woocommerce-gateway-kekspay.php:215
+#: includes/core/class-kekspay-block-checkout.php:59
+#: includes/core/class-kekspay-payment-gateway.php:122
+#: woocommerce-gateway-kekspay.php:210
 msgid "KEKS Pay je trenutno u testom načinu rada, ne zaboravite ga ugasiti po završetku testiranja."
 msgstr ""
 
-#: includes/core/class-kekspay-payment-gateway.php:144
+#: includes/core/class-kekspay-connector.php:50
+msgid "Narudžba nije plaćena putem KEKS Pay servisa."
+msgstr ""
+
+#: includes/core/class-kekspay-connector.php:67
+msgid "Neuspješno kreiranje sigurnosnog potpisa za povrat, provjerite tajni ključ u postavkama KEKS Pay servisa."
+msgstr ""
+
+#: includes/core/class-kekspay-connector.php:84
+msgid "Neuspješno kreiranje zahtjeva za povrat putem KEKS Pay servisa."
+msgstr ""
+
+#. translators: connection error message
+#: includes/core/class-kekspay-connector.php:96
+msgid "Neuspješno spajanje na KEKS Pay servis: %s"
+msgstr ""
+
+#. translators: HTTP status code
+#: includes/core/class-kekspay-connector.php:103
+msgid "KEKS Pay servis je odbio zahtjev za povrat (HTTP %d)."
+msgstr ""
+
+#: includes/core/class-kekspay-connector.php:109
+msgid "KEKS Pay servis je vratio prazan odgovor na zahtjev za povrat."
+msgstr ""
+
+#. translators: successful refund
+#: includes/core/class-kekspay-connector.php:119
+msgid "Uspješno izvršen povrat %s via KEKS Pay."
+msgstr ""
+
+#. translators: failed refund
+#: includes/core/class-kekspay-connector.php:129
+msgid "Dogodila se greška pri povratu %s via KEKS Pay."
+msgstr ""
+
+#. translators: payment failed on checkout QR scanning
+#: includes/core/class-kekspay-ipn.php:118
+msgid "Nešto je pošlo po zlu pri pokušaju naplate vaše narudžbe (#%d) putem KEKS Pay servisa, molimo pokušajte ponoviti narudžbu ili kontaktirajte administratora web trgovine za više informacija."
+msgstr ""
+
+#: includes/core/class-kekspay-ipn.php:200
+msgid "Narudžba uspješno plaćena putem KEKS Pay aplikacije."
+msgstr ""
+
+#: includes/core/class-kekspay-ipn.php:215
+msgid "Dogodila se greška pri naplati putem KEKS Pay aplikacije."
+msgstr ""
+
+#: includes/core/class-kekspay-order-admin.php:51
+msgid "Narudžba kreirana koristeći KEKS Pay u testnom načinu rada."
+msgstr ""
+
+#: includes/core/class-kekspay-order-admin.php:58
+msgid "KEKS Pay - Narudžba naplaćena u valuti HRK koja više nije podržana od strane KEKS Pay sustava. Ako želite napraviti povrat novca kroz KEKS Pay sustav, iznos za povrat prije povrata preračunati će se u EUR prema tečaju 7.5345 te biti vraćen u valuti EUR."
+msgstr ""
+
+#: includes/core/class-kekspay-payment-gateway.php:34
+#: includes/core/class-kekspay-payment-gateway.php:92
+msgid "KEKS Pay"
+msgstr ""
+
+#: includes/core/class-kekspay-payment-gateway.php:35
+#: includes/core/class-kekspay-payment-gateway.php:116
+msgid "Najbrže i bez naknada putem KEKS Pay aplikacije!"
+msgstr ""
+
+#: includes/core/class-kekspay-payment-gateway.php:149
 msgid "Narudžba napravljena u testnom načinu rada!"
 msgstr ""
 
-#: includes/core/class-kekspay-payment-gateway.php:163
-#: includes/core/class-kekspay-sell.php:106
+#: includes/core/class-kekspay-payment-gateway.php:171
+#: includes/core/class-kekspay-sell.php:107
 msgid "Otvori KEKS Pay"
 msgstr ""
 
-#: includes/core/class-kekspay-payment-gateway.php:164
+#. translators: kekspay in-app icon
+#: includes/core/class-kekspay-payment-gateway.php:173
 msgid "Pritisni %s ikonicu"
 msgstr ""
 
-#: includes/core/class-kekspay-payment-gateway.php:164
+#. translators: kekspay in-app icon
+#: includes/core/class-kekspay-payment-gateway.php:173
 msgid "keks logo"
 msgstr ""
 
-#: includes/core/class-kekspay-payment-gateway.php:165
+#: includes/core/class-kekspay-payment-gateway.php:174
 msgid "Odaberi \"Skeniraj QR kȏd\""
 msgstr ""
 
-#: includes/core/class-kekspay-payment-gateway.php:166
+#: includes/core/class-kekspay-payment-gateway.php:175
 msgid "Skeniraj QR kȏd"
 msgstr ""
 
-#: includes/core/class-kekspay-payment-gateway.php:173
+#: includes/core/class-kekspay-payment-gateway.php:181
 msgid "Otkaži"
 msgstr ""
 
-#: includes/core/class-kekspay-sell.php:80
+#: includes/core/class-kekspay-payment-gateway.php:225
+msgid "Narudžba nije pronađena."
+msgstr ""
+
+#: includes/core/class-kekspay-sell.php:81
 msgid "Dogodila se greška prilikom kreiranja QR kȏda za ovu narudžbu. Molimo rekreirajte narudžbu ili kontaktirajte vlasnika web stranice."
 msgstr ""
 
-#: includes/core/class-kekspay-sell.php:83
+#: includes/core/class-kekspay-sell.php:84
 msgid "QR kȏd"
 msgstr ""
 
-#: includes/core/class-kekspay-sell.php:97
-msgid "Dogodila se greška prilikom kreiranja poveznice za plaćanje putem KEKS Pay mobilne aplikacije za ovu narudžbu. Molimo rekreirajte narudžbu ili kontaktirajte vlasnika web stranice.\""
+#: includes/core/class-kekspay-sell.php:98
+msgid "Dogodila se greška prilikom kreiranja poveznice za plaćanje putem KEKS Pay mobilne aplikacije za ovu narudžbu. Molimo rekreirajte narudžbu ili kontaktirajte vlasnika web stranice."
 msgstr ""
 
 #: includes/settings/kekspay-settings.php:10
@@ -196,58 +241,63 @@ msgstr ""
 msgid "Status plaćene narudžbe"
 msgstr ""
 
-#: includes/settings/kekspay-settings.php:84
+#. translators: order status for payment complete
+#: includes/settings/kekspay-settings.php:85
 msgid "Status narudžbe koji će biti postavljen nakon što KEKS Pay uspješno izvrši naplatu same narudžbe. (Zadani status je \"%s\")."
 msgstr ""
 
-#: includes/settings/kekspay-settings.php:89
+#: includes/settings/kekspay-settings.php:90
 msgid "Testni način rada"
 msgstr ""
 
-#: includes/settings/kekspay-settings.php:91
+#: includes/settings/kekspay-settings.php:92
 msgid "Uključi testni način rada."
 msgstr ""
 
-#: includes/settings/kekspay-settings.php:92
+#: includes/settings/kekspay-settings.php:93
 msgid "Način rada koji omogućava testiranje, ne zaboravite ga ugasiti po završetku testiranja."
 msgstr ""
 
-#: includes/settings/kekspay-settings.php:97
+#: includes/settings/kekspay-settings.php:98
 msgid "Zapisnik grešaka"
 msgstr ""
 
-#: includes/settings/kekspay-settings.php:99
+#: includes/settings/kekspay-settings.php:100
 msgid "Uključi zapisnik grešaka"
 msgstr ""
 
-#: includes/settings/kekspay-settings.php:100
+#. translators: issue logger.
+#: includes/settings/kekspay-settings.php:102
 msgid "Zapisuje procese i greške pri radu, zapisnik je pohranjen u: %s. Zapisnik može sadržavati osjetljive informacije. Preporučamo korištenje zapisnika samo u svrhe otkrivanja te otklanjanja grešaka te brisanje zapisnika po završetku."
 msgstr ""
 
-#: includes/utilities/class-kekspay-data.php:224
+#. translators: token info.
+#: includes/utilities/class-kekspay-data.php:238
 msgid "%1$s <br><br>Nakon pohrane unutar KEKS Pay sustava omogućava ovoj trgovini primanje obavijesti o stanju naplate. %2$s Kontakt %3$s"
 msgstr ""
 
-#: woocommerce-gateway-kekspay.php:49
+#. translators: 1. URL link.
+#: woocommerce-gateway-kekspay.php:45
 msgid "KEKS Pay zahtijeva WooCommerce dodatak instaliran i aktivan. Možete ga skinuti ovdje %s."
 msgstr ""
 
-#: woocommerce-gateway-kekspay.php:179
-msgid "Minimalna verzija %1$s je %2$s. Verzija koju trenutno koristite je %3$s. Molimo skinite minimalnu verziju %1$s ako želite koristiti KEKS Pay."
+#. translators: minimum version dependancies
+#: woocommerce-gateway-kekspay.php:167
+msgid "Minimalna verzija %1$s je %2$s. Verzija koju trenutno koristite je %3$s. Molimo instalirajte minimalnu verziju %1$s ako želite koristiti KEKS Pay."
 msgstr ""
 
-#: woocommerce-gateway-kekspay.php:220
+#: woocommerce-gateway-kekspay.php:215
 msgid "KEKS Pay je trenutno onemogućen, molimo provjerite da su TID, CID i tajni ključ pravilno postavljeni."
 msgstr ""
 
-#: woocommerce-gateway-kekspay.php:225
+#: woocommerce-gateway-kekspay.php:220
 msgid "KEKS Pay je trenutno onemogućen, valuta web trgovine nije podržana. Podržane valute: \"EUR\"."
 msgstr ""
 
-#: woocommerce-gateway-kekspay.php:243
+#: woocommerce-gateway-kekspay.php:238
 msgid "Možete imati samo jedan KEKS Pay način plaćanja aktivan u isto vrijeme. Dodatak \"KEKS Pay for WooCommerce\" je deaktiviran."
 msgstr ""
 
-#: woocommerce-gateway-kekspay.php:334
+#: woocommerce-gateway-kekspay.php:348
 msgid "Postavke"
 msgstr ""

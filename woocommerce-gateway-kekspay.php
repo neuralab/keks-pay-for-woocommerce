@@ -10,7 +10,7 @@
  * Author URI:        https://www.erstebank.hr/hr/gradjanstvo
  * License:           GPL v3 or later
  * License URI:       https://www.gnu.org/licenses/gpl-3.0.html
- * Text Domain:       kekspay
+ * Text Domain:       keks-pay-for-woocommerce
  * Domain Path:       /languages
  * Requires Plugins:  woocommerce
  *
@@ -42,7 +42,7 @@ if ( ! function_exists( 'kekspay_admin_notice_missing_woocommerce' ) ) {
 	 */
 	function kekspay_admin_notice_missing_woocommerce() {
 		/* translators: 1. URL link. */
-		echo '<div class="error"><p><strong>' . sprintf( esc_html__( 'KEKS Pay zahtijeva WooCommerce dodatak instaliran i aktivan. Možete ga skinuti ovdje %s.', 'kekspay' ), '<a href="https://woocommerce.com/" target="_blank">WooCommerce</a>' ) . '</strong></p></div>';
+		echo '<div class="error"><p><strong>' . sprintf( esc_html__( 'KEKS Pay zahtijeva WooCommerce dodatak instaliran i aktivan. Možete ga skinuti ovdje %s.', 'keks-pay-for-woocommerce' ), '<a href="https://woocommerce.com/" target="_blank">WooCommerce</a>' ) . '</strong></p></div>';
 	}
 }
 /**
@@ -137,7 +137,7 @@ if ( ! class_exists( 'WC_Kekspay' ) ) {
 		 * Load plugin's textdomain.
 		 */
 		public function load_textdomain() {
-			load_plugin_textdomain( 'kekspay', false, basename( dirname( __FILE__ ) ) . '/languages' );
+			load_plugin_textdomain( 'keks-pay-for-woocommerce', false, basename( dirname( __FILE__ ) ) . '/languages' );
 		}
 
 		/**
@@ -164,7 +164,7 @@ if ( ! class_exists( 'WC_Kekspay' ) ) {
 
 					$error_notices[] = sprintf(
 						/* translators: minimum version dependancies */
-						__( 'Minimalna verzija %1$s je %2$s. Verzija koju trenutno koristite je %3$s. Molimo instalirajte minimalnu verziju %1$s ako želite koristiti KEKS Pay.', 'kekspay' ),
+						__( 'Minimalna verzija %1$s je %2$s. Verzija koju trenutno koristite je %3$s. Molimo instalirajte minimalnu verziju %1$s ako želite koristiti KEKS Pay.', 'keks-pay-for-woocommerce' ),
 						$requirement['name'],
 						$requirement['requred_version'],
 						$requirement['current_version']
@@ -207,17 +207,17 @@ if ( ! class_exists( 'WC_Kekspay' ) ) {
 
 			// Check if gateway is currently in test mode.
 			if ( Kekspay_Data::test_mode() ) {
-				self::admin_notice( __( 'KEKS Pay je trenutno u testom načinu rada, ne zaboravite ga ugasiti po završetku testiranja.', 'kekspay' ), 'warning' );
+				self::admin_notice( __( 'KEKS Pay je trenutno u testom načinu rada, ne zaboravite ga ugasiti po završetku testiranja.', 'keks-pay-for-woocommerce' ), 'warning' );
 			}
 
 			// Check if all setting keys required for gateway to work are set.
 			if ( ! Kekspay_Data::required_keys_set() ) {
-				self::admin_notice( __( 'KEKS Pay je trenutno onemogućen, molimo provjerite da su TID, CID i tajni ključ pravilno postavljeni.', 'kekspay' ), 'warning' );
+				self::admin_notice( __( 'KEKS Pay je trenutno onemogućen, molimo provjerite da su TID, CID i tajni ključ pravilno postavljeni.', 'keks-pay-for-woocommerce' ), 'warning' );
 			}
 
 			// Check if correct currency is set in webshop.
 			if ( ! Kekspay_Data::currency_supported() ) {
-				self::admin_notice( __( 'KEKS Pay je trenutno onemogućen, valuta web trgovine nije podržana. Podržane valute: "EUR".', 'kekspay' ), 'warning' );
+				self::admin_notice( __( 'KEKS Pay je trenutno onemogućen, valuta web trgovine nije podržana. Podržane valute: "EUR".', 'keks-pay-for-woocommerce' ), 'warning' );
 			}
 		}
 
@@ -235,7 +235,7 @@ if ( ! class_exists( 'WC_Kekspay' ) ) {
 			$payment_gateways = WC_Payment_Gateways::instance()->payment_gateways();
 
 			if ( isset( $payment_gateways[ KEKSPAY_PLUGIN_ID ] ) && ! $payment_gateways[ KEKSPAY_PLUGIN_ID ] instanceof Kekspay_Payment_Gateway ) {
-				self::admin_notice( __( 'Možete imati samo jedan KEKS Pay način plaćanja aktivan u isto vrijeme. Dodatak "KEKS Pay for WooCommerce" je deaktiviran.', 'kekspay' ) );
+				self::admin_notice( __( 'Možete imati samo jedan KEKS Pay način plaćanja aktivan u isto vrijeme. Dodatak "KEKS Pay for WooCommerce" je deaktiviran.', 'keks-pay-for-woocommerce' ) );
 
 				self::deactivate_self();
 			}
@@ -345,7 +345,7 @@ if ( ! class_exists( 'WC_Kekspay' ) ) {
 		 */
 		public function add_settings_link( $links, $file ) {
 			if ( $file === plugin_basename( __FILE__ ) ) {
-				array_unshift( $links, '<a href="' . KEKSPAY_ADMIN_SETTINGS_URL . '">' . __( 'Postavke', 'kekspay' ) . '</a>' );
+				array_unshift( $links, '<a href="' . KEKSPAY_ADMIN_SETTINGS_URL . '">' . __( 'Postavke', 'keks-pay-for-woocommerce' ) . '</a>' );
 			}
 			return $links;
 		}

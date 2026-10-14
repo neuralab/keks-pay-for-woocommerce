@@ -235,7 +235,7 @@ if ( ! class_exists( 'Kekspay_Data' ) ) {
 		public static function get_settings_token_field() {
 			return sprintf(
 				/* translators: token info. */
-				__( '%1$s <br><br>Nakon pohrane unutar KEKS Pay sustava omogućava ovoj trgovini primanje obavijesti o stanju naplate. %2$s Kontakt %3$s', 'kekspay' ),
+				__( '%1$s <br><br>Nakon pohrane unutar KEKS Pay sustava omogućava ovoj trgovini primanje obavijesti o stanju naplate. %2$s Kontakt %3$s', 'keks-pay-for-woocommerce' ),
 				'<b><code class="kekspay-webhook">' . add_query_arg( 'token', self::get_auth_token(), self::get_wc_endpoint( true ) ) . '</code></b>',
 				'<a href="mailto:kekspay@erstebank.hr">',
 				'</a>'

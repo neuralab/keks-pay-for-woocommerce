@@ -56,7 +56,7 @@ final class Kekspay_Block_Checkout extends AbstractPaymentMethodType {
 			'title'          => $this->gateway->title,
 			'description'    => $this->gateway->method_description,
 			'icon'           => KEKSPAY_DIR_URL . 'assets/dist/img/keks-logo.svg',
-			'testModeNotice' => Kekspay_Data::test_mode() ? __( 'KEKS Pay je trenutno u testom načinu rada, ne zaboravite ga ugasiti po završetku testiranja.', 'kekspay' ) : '',
+			'testModeNotice' => Kekspay_Data::test_mode() ? __( 'KEKS Pay je trenutno u testom načinu rada, ne zaboravite ga ugasiti po završetku testiranja.', 'keks-pay-for-woocommerce' ) : '',
 			'supports'       => array_values( array_filter( $this->gateway->supports, [ $this->gateway, 'supports' ] ) ),
 		];
 	}

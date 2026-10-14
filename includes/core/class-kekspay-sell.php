@@ -78,10 +78,10 @@ if ( ! class_exists( 'Kekspay_Sell' ) ) {
 			$qrcode = $this->get_sell_qr( $order );
 
 			if ( ! $qrcode ) {
-				return esc_html__( 'Dogodila se greška prilikom kreiranja QR kȏda za ovu narudžbu. Molimo rekreirajte narudžbu ili kontaktirajte vlasnika web stranice.', 'kekspay' );
+				return esc_html__( 'Dogodila se greška prilikom kreiranja QR kȏda za ovu narudžbu. Molimo rekreirajte narudžbu ili kontaktirajte vlasnika web stranice.', 'keks-pay-for-woocommerce' );
 			}
 
-			return apply_filters( 'kekspay_sell_qr_code', '<img class="kekspay-qr-code" src="' . esc_attr( $qrcode ) . '" width="245" height="245" alt="' . esc_attr__( 'QR kȏd', 'kekspay' ) . '">', $qrcode );
+			return apply_filters( 'kekspay_sell_qr_code', '<img class="kekspay-qr-code" src="' . esc_attr( $qrcode ) . '" width="245" height="245" alt="' . esc_attr__( 'QR kȏd', 'keks-pay-for-woocommerce' ) . '">', $qrcode );
 		}
 
 		/**
@@ -95,7 +95,7 @@ if ( ! class_exists( 'Kekspay_Sell' ) ) {
 			$sell_url = $this->get_sell_url( $order );
 
 			if ( ! $sell_url ) {
-				return esc_html__( 'Dogodila se greška prilikom kreiranja poveznice za plaćanje putem KEKS Pay mobilne aplikacije za ovu narudžbu. Molimo rekreirajte narudžbu ili kontaktirajte vlasnika web stranice.', 'kekspay' );
+				return esc_html__( 'Dogodila se greška prilikom kreiranja poveznice za plaćanje putem KEKS Pay mobilne aplikacije za ovu narudžbu. Molimo rekreirajte narudžbu ili kontaktirajte vlasnika web stranice.', 'keks-pay-for-woocommerce' );
 			}
 
 			$attrs = apply_filters(
@@ -104,7 +104,7 @@ if ( ! class_exists( 'Kekspay_Sell' ) ) {
 					'id'     => 'kekspay-pay-url',
 					'class'  => 'button kekspay-sell-button',
 					'target' => '_blank',
-					'label'  => __( 'Otvori KEKS Pay', 'kekspay' ),
+					'label'  => __( 'Otvori KEKS Pay', 'keks-pay-for-woocommerce' ),
 				]
 			);
 

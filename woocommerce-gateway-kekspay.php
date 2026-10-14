@@ -22,6 +22,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+use Kekspay\Admin\Order_Admin;
+use Kekspay\Gateway\Block_Checkout;
+use Kekspay\Gateway\IPN;
+use Kekspay\Gateway\Payment_Gateway;
+use Kekspay\Legacy_Aliases;
+use Kekspay\Utilities\Data;
+
 if ( ! function_exists( 'kekspay_wc_active' ) ) {
 	/**
 	 * Return true if the WooCommerce plugin is active or false otherwise.
@@ -91,8 +98,8 @@ if ( ! class_exists( 'WC_Kekspay' ) ) {
 		protected function __construct() {
 			self::register_constants();
 
-			new Kekspay_IPN();
-			new Kekspay_Order_Admin();
+			new IPN();
+			new Order_Admin();
 
 			// Add hooks.
 			add_action( 'init', [ $this, 'load_textdomain' ] );
@@ -187,7 +194,7 @@ if ( ! class_exists( 'WC_Kekspay' ) ) {
 		 * Add KEKS Pay payment method.
 		 */
 		public function add_gateway( $methods ) {
-			$methods[] = 'Kekspay_Payment_Gateway';
+			$methods[] = Payment_Gateway::class;
 			return $methods;
 		}
 
@@ -196,7 +203,7 @@ if ( ! class_exists( 'WC_Kekspay' ) ) {
 		 */
 		public function check_settings() {
 			// If payment gateway is not enabled bail.
-			if ( ! Kekspay_Data::enabled() ) {
+			if ( ! Data::enabled() ) {
 				return;
 			}
 
@@ -208,17 +215,17 @@ if ( ! class_exists( 'WC_Kekspay' ) ) {
 			}
 
 			// Check if gateway is currently in test mode.
-			if ( Kekspay_Data::test_mode() ) {
+			if ( Data::test_mode() ) {
 				self::admin_notice( __( 'KEKS Pay je trenutno u testom načinu rada, ne zaboravite ga ugasiti po završetku testiranja.', 'keks-pay-for-woocommerce' ), 'warning' );
 			}
 
 			// Check if all setting keys required for gateway to work are set.
-			if ( ! Kekspay_Data::required_keys_set() ) {
+			if ( ! Data::required_keys_set() ) {
 				self::admin_notice( __( 'KEKS Pay je trenutno onemogućen, molimo provjerite da su TID, CID i tajni ključ pravilno postavljeni.', 'keks-pay-for-woocommerce' ), 'warning' );
 			}
 
 			// Check if correct currency is set in webshop.
-			if ( ! Kekspay_Data::currency_supported() ) {
+			if ( ! Data::currency_supported() ) {
 				self::admin_notice( __( 'KEKS Pay je trenutno onemogućen, valuta web trgovine nije podržana. Podržane valute: "EUR".', 'keks-pay-for-woocommerce' ), 'warning' );
 			}
 		}
@@ -236,7 +243,7 @@ if ( ! class_exists( 'WC_Kekspay' ) ) {
 			// Check if there already is payment method with id "nrlb-kekspay-woocommerce".
 			$payment_gateways = WC_Payment_Gateways::instance()->payment_gateways();
 
-			if ( isset( $payment_gateways[ KEKSPAY_PLUGIN_ID ] ) && ! $payment_gateways[ KEKSPAY_PLUGIN_ID ] instanceof Kekspay_Payment_Gateway ) {
+			if ( isset( $payment_gateways[ KEKSPAY_PLUGIN_ID ] ) && ! $payment_gateways[ KEKSPAY_PLUGIN_ID ] instanceof Payment_Gateway ) {
 				self::admin_notice( __( 'Možete imati samo jedan KEKS Pay način plaćanja aktivan u isto vrijeme. Dodatak "KEKS Pay for WooCommerce" je deaktiviran.', 'keks-pay-for-woocommerce' ) );
 
 				self::deactivate_self();
@@ -261,7 +268,7 @@ if ( ! class_exists( 'WC_Kekspay' ) ) {
 			add_action(
 				'woocommerce_blocks_payment_method_type_registration',
 				function( Automattic\WooCommerce\Blocks\Payments\PaymentMethodRegistry $payment_method_registry ) {
-					$payment_method_registry->register( new Kekspay_Block_Checkout() );
+					$payment_method_registry->register( new Block_Checkout() );
 				}
 			);
 		}
@@ -460,6 +467,8 @@ function kekspay_init() {
 	}
 
 	require_once __DIR__ . '/vendor/autoload.php';
+
+	Legacy_Aliases::register();
 
 	WC_Kekspay::get_instance();
 }

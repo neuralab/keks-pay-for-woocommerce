@@ -65,5 +65,3 @@ if ( ! class_exists( 'Kekspay_Order_Admin' ) ) {
 
 	}
 }
-
-new Kekspay_Order_Admin();

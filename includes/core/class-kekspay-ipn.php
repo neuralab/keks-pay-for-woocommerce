@@ -253,5 +253,3 @@ if ( ! class_exists( 'Kekspay_IPN' ) ) {
 		}
 	}
 }
-
-new Kekspay_IPN();

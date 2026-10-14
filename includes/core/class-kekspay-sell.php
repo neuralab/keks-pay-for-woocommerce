@@ -14,13 +14,6 @@ if ( ! class_exists( 'Kekspay_Sell' ) ) {
 	class Kekspay_Sell {
 
 		/**
-		 * Class constructor.
-		 */
-		public function __construct() {
-			require_once KEKSPAY_DIR_PATH . 'vendor-prefixed/autoload.php';
-		}
-
-		/**
 		 * Create url for mobile app.
 		 *
 		 * @param  object $order Order for which to create url.

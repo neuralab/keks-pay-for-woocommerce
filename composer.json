@@ -1,10 +1,32 @@
 {
+	"license": "GPL-3.0-or-later",
 	"require": {
 		"php": "^7.4 || ^8.0",
 		"chillerlan/php-qrcode": "^4.4"
 	},
+	"autoload": {
+		"classmap": [
+			"includes/"
+		]
+	},
+	"config": {
+		"platform": {
+			"php": "7.4"
+		},
+		"optimize-autoloader": true
+	},
 	"scripts": {
-		"prefix-namespaces": "strauss"
+		"prefix-namespaces": [
+			"@php scripts/download-strauss.php",
+			"@php bin/strauss.phar",
+			"@composer dump-autoload"
+		],
+		"post-install-cmd": [
+			"@prefix-namespaces"
+		],
+		"post-update-cmd": [
+			"@prefix-namespaces"
+		]
 	},
 	"extra": {
 		"strauss": {
@@ -15,7 +37,7 @@
 			"packages": [
 				"chillerlan/php-qrcode"
 			],
-			"delete_vendor_packages": false
+			"delete_vendor_packages": true
 		}
 	}
 }

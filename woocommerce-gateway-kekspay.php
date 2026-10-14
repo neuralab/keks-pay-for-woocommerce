@@ -34,6 +34,15 @@ if ( ! function_exists( 'kekspay_wc_active' ) ) {
 	}
 }
 
+if ( ! function_exists( 'kekspay_admin_notice_missing_dependencies' ) ) {
+	/**
+	 * Echo admin notice HTML for missing Composer dependencies.
+	 */
+	function kekspay_admin_notice_missing_dependencies() {
+		echo '<div class="error"><p><strong>' . esc_html__( 'KEKS Pay nedostaju Composer paketi. Pokrenite "composer install" u direktoriju dodatka.', 'keks-pay-for-woocommerce' ) . '</strong></p></div>';
+	}
+}
+
 if ( ! function_exists( 'kekspay_admin_notice_missing_woocommerce' ) ) {
 	/**
 	 * Echo admin notice HTML for missing WooCommerce plugin.
@@ -82,15 +91,8 @@ if ( ! class_exists( 'WC_Kekspay' ) ) {
 		protected function __construct() {
 			self::register_constants();
 
-			// Require all necessary files.
-			require_once 'includes/utilities/class-kekspay-data.php';
-			require_once 'includes/utilities/class-kekspay-logger.php';
-
-			require_once 'includes/core/class-kekspay-connector.php';
-			require_once 'includes/core/class-kekspay-sell.php';
-			require_once 'includes/core/class-kekspay-ipn.php';
-			require_once 'includes/core/class-kekspay-order-admin.php';
-			require_once 'includes/core/class-kekspay-payment-gateway.php';
+			new Kekspay_IPN();
+			new Kekspay_Order_Admin();
 
 			// Add hooks.
 			add_action( 'init', [ $this, 'load_textdomain' ] );
@@ -255,8 +257,6 @@ if ( ! class_exists( 'WC_Kekspay' ) ) {
 			if ( ! class_exists( 'Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType' ) ) {
 				return;
 			}
-
-			require_once KEKSPAY_DIR_PATH . 'includes/core/class-kekspay-block-checkout.php';
 
 			add_action(
 				'woocommerce_blocks_payment_method_type_registration',
@@ -453,6 +453,14 @@ function kekspay_init() {
 		add_action( 'admin_notices', 'kekspay_admin_notice_missing_woocommerce' );
 		return;
 	}
+
+	if ( ! file_exists( __DIR__ . '/vendor/autoload.php' ) || ! file_exists( __DIR__ . '/vendor-prefixed/autoload.php' ) ) {
+		add_action( 'admin_notices', 'kekspay_admin_notice_missing_dependencies' );
+		return;
+	}
+
+	require_once __DIR__ . '/vendor/autoload.php';
+	require_once __DIR__ . '/vendor-prefixed/autoload.php';
 
 	WC_Kekspay::get_instance();
 }

@@ -203,11 +203,12 @@ class Payment_Gateway extends \WC_Payment_Gateway {
 
 		if ( ! $order ) {
 			Logger::log( 'Failed to find order ' . $order_id . ' while trying to process payment.', 'critical' );
-			return;
+			wc_add_notice( __( 'Narudžba nije pronađena.', 'keks-pay-for-woocommerce' ), 'error' );
+
+			return [ 'result' => 'failure' ];
 		}
 
-		WC()->cart->empty_cart();
-
+		// Cart is not emptied here so it's kept if customer cancels or payment fails, WooCommerce empties it on order received page.
 		return [
 			'result'   => 'success',
 			'redirect' => $order->get_checkout_payment_url( true ),

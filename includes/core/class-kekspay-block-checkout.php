@@ -1,4 +1,8 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 use Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType;
 
 final class Kekspay_Block_Checkout extends AbstractPaymentMethodType {
@@ -49,8 +53,11 @@ final class Kekspay_Block_Checkout extends AbstractPaymentMethodType {
 
 	public function get_payment_method_data() {
 		return [
-			'title'       => $this->gateway->method_title,
-			'description' => $this->gateway->method_description,
+			'title'          => $this->gateway->title,
+			'description'    => $this->gateway->method_description,
+			'icon'           => KEKSPAY_DIR_URL . 'assets/dist/img/keks-logo.svg',
+			'testModeNotice' => Kekspay_Data::test_mode() ? __( 'KEKS Pay je trenutno u testom načinu rada, ne zaboravite ga ugasiti po završetku testiranja.', 'kekspay' ) : '',
+			'supports'       => array_values( array_filter( $this->gateway->supports, [ $this->gateway, 'supports' ] ) ),
 		];
 	}
 }

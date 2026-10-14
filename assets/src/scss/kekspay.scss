@@ -87,3 +87,16 @@ a.kekspay-cancel {
   display: inline-block;
   margin-top: 24px;
 }
+
+.kekspay-block-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.kekspay-block-label .kekspay-logo {
+  margin: 0 0 0 auto;
+  width:  70px;
+  height: 30px;
+}

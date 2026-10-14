@@ -142,7 +142,11 @@ class IPN {
 		}
 
 		if ( 0 === (int) $params['status'] ) {
-			$this->complete_payment( $order, $params );
+			if ( $this->amount_matches( $order, $params ) ) {
+				$this->complete_payment( $order, $params );
+			} else {
+				$this->hold_payment( $order, $params );
+			}
 		} else {
 			$this->fail_payment( $order, $params );
 		}
@@ -229,6 +233,60 @@ class IPN {
 		}
 
 		return $order;
+	}
+
+	/**
+	 * Return false if paid amount or currency from the notification doesn't match the order.
+	 *
+	 * Amount is sent in currency units (e.g. "225" for 225.00 EUR), it is checked only when sent.
+	 *
+	 * @param \WC_Order $order  Order to check.
+	 * @param array     $params Request params.
+	 *
+	 * @return bool
+	 */
+	private function amount_matches( $order, $params ) {
+		if ( ! isset( $params['amount'] ) || '' === $params['amount'] ) {
+			Logger::log( 'Amount is missing in the request for IPN, skipping amount check for order ' . $order->get_id() . '.', 'notice' );
+			return true;
+		}
+
+		if ( isset( $params['currency'] ) && '' !== $params['currency'] && strtoupper( $params['currency'] ) !== $order->get_currency() ) {
+			return false;
+		}
+
+		$amount = str_replace( ',', '.', $params['amount'] );
+
+		return is_numeric( $amount ) && (int) round( (float) $amount * 100 ) === (int) round( (float) $order->get_total() * 100 );
+	}
+
+	/**
+	 * Put order on hold when paid amount doesn't match the order total, so the payment is checked manually.
+	 *
+	 * KEKS Pay status is set to success since the customer paid, so order pay page redirects to order received page.
+	 *
+	 * @param \WC_Order $order  Order which was paid.
+	 * @param array     $params Request params.
+	 *
+	 * @return void
+	 */
+	private function hold_payment( $order, $params ) {
+		$currency = isset( $params['currency'] ) && '' !== $params['currency'] ? strtoupper( $params['currency'] ) : $order->get_currency();
+
+		Logger::log( 'KEKS Pay paid amount ' . $params['amount'] . ' ' . $currency . ' does not match total ' . $order->get_total() . ' ' . $order->get_currency() . ' of order ' . $order->get_id() . ', putting order on hold.', 'error' );
+
+		$order->update_meta_data( 'kekspay_status', 'success' );
+		$order->update_meta_data( 'kekspay_id', $params['keks_id'] );
+		$order->set_transaction_id( $params['keks_id'] );
+		$order->update_status(
+			'on-hold',
+			sprintf(
+				/* translators: 1: paid amount, 2: order total */
+				__( 'KEKS Pay je naplatio %1$s, a iznos narudžbe je %2$s. Provjerite uplatu prije obrade narudžbe.', 'keks-pay-for-woocommerce' ),
+				$params['amount'] . ' ' . $currency,
+				$order->get_total() . ' ' . $order->get_currency()
+			)
+		);
 	}
 
 	/**

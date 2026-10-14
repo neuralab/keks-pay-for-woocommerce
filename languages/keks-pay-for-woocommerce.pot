@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-14T16:11:49+00:00\n"
+"POT-Creation-Date: 2026-10-14T17:14:28+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.10.0\n"
 "X-Domain: keks-pay-for-woocommerce\n"
@@ -90,15 +90,20 @@ msgid "KEKS Pay je trenutno u testom načinu rada, ne zaboravite ga ugasiti po z
 msgstr ""
 
 #. translators: payment failed on checkout QR scanning
-#: src/Gateway/IPN.php:127
+#: src/Gateway/IPN.php:109
 msgid "Nešto je pošlo po zlu pri pokušaju naplate vaše narudžbe (#%d) putem KEKS Pay servisa, molimo pokušajte ponoviti narudžbu ili kontaktirajte administratora web trgovine za više informacija."
 msgstr ""
 
-#: src/Gateway/IPN.php:209
+#. translators: 1: paid amount, 2: order total
+#: src/Gateway/IPN.php:286
+msgid "KEKS Pay je naplatio %1$s, a iznos narudžbe je %2$s. Provjerite uplatu prije obrade narudžbe."
+msgstr ""
+
+#: src/Gateway/IPN.php:306
 msgid "Narudžba uspješno plaćena putem KEKS Pay aplikacije."
 msgstr ""
 
-#: src/Gateway/IPN.php:224
+#: src/Gateway/IPN.php:333
 msgid "Dogodila se greška pri naplati putem KEKS Pay aplikacije."
 msgstr ""
 
@@ -293,7 +298,7 @@ msgstr ""
 msgid "KEKS Pay zahtijeva WooCommerce dodatak instaliran i aktivan. Možete ga skinuti ovdje %s."
 msgstr ""
 
-#: src/Plugin.php:428
+#: src/Plugin.php:445
 msgid "Postavke"
 msgstr ""
 

@@ -51,6 +51,7 @@ For more installation options check the [official WordPress documentation](https
 
 = 3.0.0 =
 * Ignore repeated or late payment notifications for already paid or refunded orders.
+* Put order on hold when amount paid via KEKS Pay does not match the order total.
 * Complete payments using WooCommerce payment_complete(), KEKS Pay ID is now stored as the transaction ID.
 * Use the mode (test or live) the order was paid in for refunds and payment notifications.
 * Show the reason of a failed refund and fix partial refunds under 1 EUR being marked as full refunds.

@@ -12,6 +12,7 @@
  * License URI:       https://www.gnu.org/licenses/gpl-3.0.html
  * Text Domain:       kekspay
  * Domain Path:       /languages
+ * Requires Plugins:  woocommerce
  *
  * WC requires at least: 8.2
  * WC tested up to: 11.1
@@ -29,8 +30,7 @@ if ( ! function_exists( 'kekspay_wc_active' ) ) {
 	 * @return boolean
 	 */
 	function kekspay_wc_active() {
-		include_once ABSPATH . 'wp-admin/includes/plugin.php';
-		return is_plugin_active( 'woocommerce/woocommerce.php' );
+		return class_exists( 'WooCommerce' );
 	}
 }
 
@@ -45,11 +45,6 @@ if ( ! function_exists( 'kekspay_admin_notice_missing_woocommerce' ) ) {
 		echo '<div class="error"><p><strong>' . sprintf( esc_html__( 'KEKS Pay zahtijeva WooCommerce dodatak instaliran i aktivan. Možete ga skinuti ovdje %s.', 'kekspay' ), '<a href="https://woocommerce.com/" target="_blank">WooCommerce</a>' ) . '</strong></p></div>';
 	}
 }
-if ( ! kekspay_wc_active() ) {
-	add_action( 'admin_notices', 'kekspay_admin_notice_missing_woocommerce' );
-	return;
-}
-
 /**
  * Declare Kekspay plugin compatibility for certain WooCommerce features:
  *        - HPOS
@@ -438,4 +433,17 @@ register_activation_hook( __FILE__, [ 'WC_Kekspay', 'install' ] );
 register_uninstall_hook( __FILE__, [ 'WC_Kekspay', 'uninstall' ] );
 register_deactivation_hook( __FILE__, [ 'WC_Kekspay', 'deactivate' ] );
 
-add_action( 'plugins_loaded', [ 'WC_Kekspay', 'get_instance' ], 0 );
+/**
+ * Initialize the plugin once all plugins are loaded and WooCommerce is available.
+ *
+ * @return void
+ */
+function kekspay_init() {
+	if ( ! kekspay_wc_active() ) {
+		add_action( 'admin_notices', 'kekspay_admin_notice_missing_woocommerce' );
+		return;
+	}
+
+	WC_Kekspay::get_instance();
+}
+add_action( 'plugins_loaded', 'kekspay_init', 0 );

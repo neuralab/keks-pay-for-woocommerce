@@ -315,10 +315,10 @@ if ( ! class_exists( 'WC_Kekspay' ) ) {
 
 				// Add redirect js only on order-pay endpoint but not on wp-admin generated customer payment page.
 				if ( is_wc_endpoint_url( 'order-pay' ) && ! filter_input( INPUT_GET, 'pay_for_order', FILTER_VALIDATE_BOOLEAN ) ) {
-					$order_id = get_query_var( 'order-pay' );
-					$order    = new WC_Order( $order_id );
+					$order_id = absint( get_query_var( 'order-pay' ) );
+					$order    = $order_id ? wc_get_order( $order_id ) : false;
 
-					if ( 'erste-kekspay-woocommerce' === $order->get_payment_method() ) {
+					if ( $order && KEKSPAY_PLUGIN_ID === $order->get_payment_method() ) {
 						wp_enqueue_script( 'kekspay-client-script', KEKSPAY_DIR_URL . '/assets/dist/js/kekspay.js', [ 'jquery' ], KEKSPAY_PLUGIN_VERSION, true );
 
 						$localize_data = [

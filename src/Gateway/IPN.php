@@ -14,11 +14,17 @@ use Kekspay\Utilities\Logger;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * IPN class
+ * IPN class, handles payment notifications from KEKS Pay and payment status checks from order pay page.
  *
  * @since 0.1
  */
 class IPN {
+	/**
+	 * Params required in payment notification.
+	 *
+	 * @var array
+	 */
+	const REQUIRED_PARAMS = [ 'bill_id', 'status', 'keks_id', 'tid' ];
 
 	/**
 	 * Class constructor.
@@ -68,76 +74,6 @@ class IPN {
 	}
 
 	/**
-	 * Die with given message, encoded as JSON, and set HTTP response status.
-	 *
-	 * @param  mixed   $message
-	 * @param  integer $status_code Defaults to 200.
-	 */
-	private function respond( $message, $status_code = 200 ) {
-		status_header( $status_code );
-		header( 'content-type: application/json; charset=utf-8' );
-
-		$encoded_message = wp_json_encode( $message );
-
-		if ( ! $encoded_message ) {
-			Logger::log( 'Failed to encode API response message.', 'error' );
-			$encoded_message = -1;
-		}
-
-		die( $encoded_message ); //@codingStandardsIgnoreLine - escaping not needed
-	}
-
-	/**
-	 * Die with error and given message, encoded as JSON, and set HTTP response status.
-	 *
-	 * @param string $message Message description about the failure of request.
-	 */
-	private function respond_error( $message ) {
-		status_header( 400 );
-		header( 'content-type: application/json; charset=utf-8' );
-
-		$encoded_message = wp_json_encode(
-			[
-				'status'  => -1,
-				'message' => $message,
-			]
-		);
-
-		if ( ! $encoded_message ) {
-			Logger::log( 'Failed to encode API response message.', 'error' );
-			$encoded_message = -1;
-		}
-
-		die( $encoded_message ); //@codingStandardsIgnoreLine - escaping not needed
-	}
-
-	/**
-	 * Return assoc array of parameters from either 'php://input' (POST request body), or $_REQUEST.
-	 *
-	 * @return array $params
-	 */
-	private function resolve_params() {
-		$params = json_decode( file_get_contents( 'php://input' ), true );
-		if ( empty( $params ) ) {
-			// NOTE: external request, signature is checked in the calling method to determine validity.
-		  // phpcs:disable WordPress.Security.NonceVerification.Recommended
-			$params = $_REQUEST;
-		  // phpcs:enable
-		}
-
-		if ( ! $params ) {
-			return false;
-		}
-
-		return array_map(
-			function( $item ) {
-				return filter_var( $item, FILTER_SANITIZE_FULL_SPECIAL_CHARS );
-			},
-			$params
-		);
-	}
-
-	/**
 	 * Return KEKS Pay payment status of the order and URL to redirect to once payment is completed or failed.
 	 *
 	 * @param \WP_REST_Request $request Request with order_id and order_key params.
@@ -180,44 +116,102 @@ class IPN {
 	}
 
 	/**
-	 * Should be used as a callback URL for KEKS Pay API checkout request.
+	 * Handle payment notification sent by KEKS Pay to the webhook URL shown in gateway settings.
+	 *
+	 * KEKS Pay sends JSON body with string values and the token in the URL.
+	 *
+	 * @return void
 	 */
 	public function do_checkout_status() {
-		// Verify token authorization.
 		if ( ! $this->verify_kekspay_token() ) {
 			Logger::log( 'Failed to verify token.', 'error' );
 			$this->respond_error( 'Webshop authentication failed, token mismatch.' );
 		}
 
-		$params = $this->resolve_params();
-		if ( is_array( $params ) ) {
-			unset( $params['token'] );
-		}
+		$params = $this->get_request_params();
 		Logger::log( wp_json_encode( $params ), 'info' );
-		// Check if any parametars are received.
+
+		$this->validate_params( $params );
+
+		$order = $this->get_verified_order( $params );
+
+		// Ignore repeated or late notifications for orders that are already paid or refunded.
+		if ( in_array( $order->get_meta( 'kekspay_status' ), [ 'success', 'refunded', 'refunded_partially' ], true ) ) {
+			Logger::log( 'Order ' . $order->get_id() . ' is already paid via KEKS Pay, ignoring IPN with status ' . $params['status'] . '.', 'notice' );
+			$this->respond_accepted();
+		}
+
+		if ( 0 === (int) $params['status'] ) {
+			$this->complete_payment( $order, $params );
+		} else {
+			$this->fail_payment( $order, $params );
+		}
+
+		$this->respond_accepted();
+	}
+
+	/**
+	 * Return params from JSON request body, or from form data for requests not sending JSON.
+	 *
+	 * Only scalar values are kept, all as sanitized strings since values are compared to stored strings.
+	 *
+	 * @return array
+	 */
+	private function get_request_params() {
+		$params = json_decode( (string) file_get_contents( 'php://input' ), true );
+
+		if ( ! is_array( $params ) ) {
+			// External request, authenticated by the token instead of nonce.
+			$params = wp_unslash( $_POST ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		}
+
+		unset( $params['token'] );
+
+		return array_map(
+			function( $value ) {
+				return sanitize_text_field( (string) $value );
+			},
+			array_filter( $params, 'is_scalar' )
+		);
+	}
+
+	/**
+	 * Respond with error if required params are missing or status is not an integer.
+	 *
+	 * @param array $params Request params.
+	 *
+	 * @return void
+	 */
+	private function validate_params( $params ) {
 		if ( ! $params ) {
 			Logger::log( 'Missing parameters in the request for IPN.', 'error' );
 			$this->respond_error( 'Missing parameters.' );
 		}
 
-		// Check if required params are recieved.
-		foreach ( [ 'bill_id', 'status', 'keks_id', 'tid' ] as $required_param ) {
-			if ( ! isset( $params[ $required_param ] ) ) {
+		foreach ( self::REQUIRED_PARAMS as $required_param ) {
+			if ( ! isset( $params[ $required_param ] ) || '' === $params[ $required_param ] ) {
 				Logger::log( 'Missing ' . $required_param . ' parametar in the request for IPN.', 'error' );
 				$this->respond_error( 'Missing or corrupt required parametars.' );
 			}
 		}
 
-		// Check if status is a valid value.
-		$status = filter_var( $params['status'], FILTER_VALIDATE_INT );
-		if ( false === $status ) {
+		if ( false === filter_var( $params['status'], FILTER_VALIDATE_INT ) ) {
 			Logger::log( 'Invalid status parametar in the request for IPN.', 'error' );
 			$this->respond_error( 'Invalid payment status.' );
 		}
+	}
 
-		// Extract order id and check if order exists.
+	/**
+	 * Return order from the notification, respond with error if it doesn't exist or doesn't match the notification.
+	 *
+	 * @param array $params Request params.
+	 *
+	 * @return \WC_Order
+	 */
+	private function get_verified_order( $params ) {
 		$order_id = Data::get_order_id_by_bill_id( $params['bill_id'] );
 		$order    = $order_id ? wc_get_order( $order_id ) : false;
+
 		if ( ! $order ) {
 			Logger::log( 'Failed to find order ' . $params['bill_id'] . ' from the request for IPN.', 'error' );
 			$this->respond_error( 'Couldn\'t find corresponding order ' . $params['bill_id'] . '.' );
@@ -229,49 +223,100 @@ class IPN {
 		}
 
 		// Check if recieved TID and bill ID match the ones used for the order.
-		if ( $params['tid'] !== Data::get_order_settings( $order, 'webshop-tid' ) || Data::get_bill_id_by_order_id( $order_id ) !== $params['bill_id'] ) {
+		if ( Data::get_order_settings( $order, 'webshop-tid' ) !== $params['tid'] || Data::get_bill_id_by_order_id( $order_id ) !== $params['bill_id'] ) {
 			Logger::log( 'Recieved TID ' . $params['tid'] . ' or bill ID ' . $params['bill_id'] . ' does not match the order in the request for IPN.', 'error' );
 			$this->respond_error( 'Webshop verification failed, mismatch for TID ' . $params['tid'] . '.' );
 		}
 
-		$message = isset( $params['message'] ) ? $params['message'] : '';
+		return $order;
+	}
 
-		// Ignore repeated or late notifications for orders that are already paid or refunded.
-		if ( in_array( $order->get_meta( 'kekspay_status' ), [ 'success', 'refunded', 'refunded_partially' ], true ) ) {
-			Logger::log( 'Order ' . $order_id . ' is already paid via KEKS Pay, ignoring IPN with status ' . $status . '.', 'notice' );
-			$this->respond(
-				[
-					'status'  => 0,
-					'message' => 'Accepted',
-				]
-			);
+	/**
+	 * Mark order as paid using order status set in gateway settings.
+	 *
+	 * @param \WC_Order $order  Order to complete.
+	 * @param array     $params Request params.
+	 *
+	 * @return void
+	 */
+	private function complete_payment( $order, $params ) {
+		Logger::log( 'KEKS Pay successfully completed payment for order ' . $order->get_id() . ', message: ' . ( $params['message'] ?? '' ), 'info' );
+
+		$order->update_meta_data( 'kekspay_status', 'success' );
+		$order->update_meta_data( 'kekspay_id', $params['keks_id'] );
+		$order->add_order_note( __( 'Narudžba uspješno plaćena putem KEKS Pay aplikacije.', 'keks-pay-for-woocommerce' ) );
+
+		$order_id    = $order->get_id();
+		$paid_status = Data::get_settings( 'payed-order-status' );
+		$set_status  = function( $status, $id ) use ( $order_id, $paid_status ) {
+			return (int) $id === $order_id && $paid_status ? $paid_status : $status;
+		};
+
+		add_filter( 'woocommerce_payment_complete_order_status', $set_status, 10, 2 );
+		$order->payment_complete( $params['keks_id'] );
+		remove_filter( 'woocommerce_payment_complete_order_status', $set_status, 10 );
+
+		$order->save();
+	}
+
+	/**
+	 * Mark KEKS Pay payment of the order as failed.
+	 *
+	 * @param \WC_Order $order  Order which payment failed.
+	 * @param array     $params Request params.
+	 *
+	 * @return void
+	 */
+	private function fail_payment( $order, $params ) {
+		Logger::log( 'KEKS Pay failed to complete payment for order ' . $order->get_id() . ', message: ' . ( $params['message'] ?? '' ), 'error' );
+
+		$order->update_meta_data( 'kekspay_status', 'failed' );
+		$order->add_order_note( __( 'Dogodila se greška pri naplati putem KEKS Pay aplikacije.', 'keks-pay-for-woocommerce' ) );
+		$order->save();
+	}
+
+	/**
+	 * Compare token from the request with the webshop token.
+	 *
+	 * Token is sent in the webhook URL, Authorization header ("Token <token>") is supported for older integrations.
+	 *
+	 * @return bool
+	 */
+	private function verify_kekspay_token() {
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- External request authenticated by the token.
+		$token     = isset( $_REQUEST['token'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['token'] ) ) : '';
+		$token_src = 'REQUEST';
+		// phpcs:enable
+
+		if ( ! $token ) {
+			$header    = isset( $_SERVER['HTTP_AUTHORIZATION'] ) ? $_SERVER['HTTP_AUTHORIZATION'] : ( isset( $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ) ? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] : '' ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+			$token     = sanitize_text_field( preg_replace( '/^Token\s+/i', '', wp_unslash( $header ) ) );
+			$token_src = 'SERVER';
 		}
 
-		if ( 0 === $status ) {
-			Logger::log( 'KEKS Pay successfully completed payment for order ' . $order_id . ', message: ' . $message, 'info' );
-
-			$order->update_meta_data( 'kekspay_status', 'success' );
-			$order->update_meta_data( 'kekspay_id', $params['keks_id'] );
-			$order->add_order_note( __( 'Narudžba uspješno plaćena putem KEKS Pay aplikacije.', 'keks-pay-for-woocommerce' ) );
-
-			$paid_status = Data::get_settings( 'payed-order-status' );
-			$set_status  = function( $status, $id ) use ( $order_id, $paid_status ) {
-				return (int) $id === (int) $order_id && $paid_status ? $paid_status : $status;
-			};
-
-			add_filter( 'woocommerce_payment_complete_order_status', $set_status, 10, 2 );
-			$order->payment_complete( $params['keks_id'] );
-			remove_filter( 'woocommerce_payment_complete_order_status', $set_status, 10 );
-
-			$order->save();
-		} else {
-			Logger::log( 'KEKS Pay failed to complete payment for order ' . $order_id . ', message: ' . $message, 'error' );
-			$order->update_meta_data( 'kekspay_status', 'failed' );
-			$order->add_order_note( __( 'Dogodila se greška pri naplati putem KEKS Pay aplikacije.', 'keks-pay-for-woocommerce' ) );
-			$order->save();
+		if ( ! $token ) {
+			Logger::log( 'Failed to recieve authentication token.', 'error' );
+			$this->respond_error( 'Authentication token missing, failed to verify.' );
 		}
 
-		$this->respond(
+		Logger::log( 'Token src: ' . $token_src, 'info' );
+
+		$auth_token = (string) Data::get_settings( 'auth-token' );
+		if ( ! $auth_token ) {
+			Logger::log( 'Webshop authentication token is not generated yet, open gateway settings to generate it.', 'error' );
+			return false;
+		}
+
+		return hash_equals( $auth_token, $token );
+	}
+
+	/**
+	 * Respond to KEKS Pay that the notification was accepted.
+	 *
+	 * @return void
+	 */
+	private function respond_accepted() {
+		wp_send_json(
 			[
 				'status'  => 0,
 				'message' => 'Accepted',
@@ -280,30 +325,19 @@ class IPN {
 	}
 
 	/**
-	 * Compares tokens to verify valid request.
+	 * Respond to KEKS Pay with error.
 	 *
-	 * @return bool
+	 * @param string $message Message describing why the notification was rejected.
+	 *
+	 * @return void
 	 */
-	private function verify_kekspay_token() {
-		$token_src = 'REQUEST';
-		$token     = isset( $_REQUEST['token'] ) ? filter_var( wp_unslash( $_REQUEST['token'] ), FILTER_SANITIZE_FULL_SPECIAL_CHARS ) : false; //@codingStandardsIgnoreLine - safe use of REQUEST.
-		if ( ! $token ) { // Legacy check.
-			$token_src = 'SERVER';
-			$token     = isset( $_SERVER['HTTP_AUTHORIZATION'] ) ? filter_var( $_SERVER['HTTP_AUTHORIZATION'], FILTER_SANITIZE_FULL_SPECIAL_CHARS ) : false; //@codingStandardsIgnoreLine - safe use of SERVER.
-		}
-		if ( ! $token ) {
-			Logger::log( 'Failed to recieve authentication token.', 'error' );
-			$this->respond_error( 'Authentication token missing, failed to verify.' );
-		} else {
-			Logger::log( 'Token src: ' . $token_src, 'info' );
-		}
-
-		$auth_token = (string) Data::get_settings( 'auth-token' );
-		if ( ! $auth_token ) {
-			Logger::log( 'Webshop authentication token is not generated yet, open gateway settings to generate it.', 'error' );
-			return false;
-		}
-
-		return hash_equals( $auth_token, str_replace( 'Token ', '', $token ) );
+	private function respond_error( $message ) {
+		wp_send_json(
+			[
+				'status'  => -1,
+				'message' => $message,
+			],
+			400
+		);
 	}
 }

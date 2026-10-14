@@ -2,5 +2,20 @@
 	"require": {
 		"php": "^7.4 || ^8.0",
 		"chillerlan/php-qrcode": "^4.4"
+	},
+	"scripts": {
+		"prefix-namespaces": "strauss"
+	},
+	"extra": {
+		"strauss": {
+			"target_directory": "vendor-prefixed",
+			"namespace_prefix": "Kekspay\\Vendor\\",
+			"classmap_prefix": "Kekspay_Vendor_",
+			"constant_prefix": "KEKSPAY_VENDOR_",
+			"packages": [
+				"chillerlan/php-qrcode"
+			],
+			"delete_vendor_packages": false
+		}
 	}
 }

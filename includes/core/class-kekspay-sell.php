@@ -3,7 +3,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use chillerlan\QRCode\{ QRCode, QROptions };
+use Kekspay\Vendor\chillerlan\QRCode\{ QRCode, QROptions };
 
 if ( ! class_exists( 'Kekspay_Sell' ) ) {
 	/**
@@ -17,7 +17,7 @@ if ( ! class_exists( 'Kekspay_Sell' ) ) {
 		 * Class constructor.
 		 */
 		public function __construct() {
-			require_once KEKSPAY_DIR_PATH . 'vendor/autoload.php';
+			require_once KEKSPAY_DIR_PATH . 'vendor-prefixed/autoload.php';
 		}
 
 		/**

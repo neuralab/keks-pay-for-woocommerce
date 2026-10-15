@@ -15,7 +15,7 @@
  * Requires Plugins:  woocommerce
  *
  * WC requires at least: 8.2
- * WC tested up to: 11.1
+ * WC tested up to: 11.2
  *
  * @package Kekspay
  */

@@ -33,6 +33,8 @@ class Payment_Gateway extends \WC_Payment_Gateway {
 		$this->method_title       = __( 'KEKS Pay', 'keks-pay-for-woocommerce' );
 		$this->method_description = __( 'Najbrže i bez naknada putem KEKS Pay aplikacije!', 'keks-pay-for-woocommerce' );
 		$this->has_fields         = true;
+		// Square logo shown in WooCommerce admin payments list, checkout shows the full logo using get_icon().
+		$this->icon = Plugin::url( 'assets/dist/img/keks-logo-square.svg' );
 
 		$this->init_form_fields();
 		$this->init_settings();

@@ -20,7 +20,7 @@ class Settings {
 	 *
 	 * @var array
 	 */
-	const EXCLUDED_PAYMENT_COMPLETE_STATUSES = [ 'wc-pending', 'wc-failed', 'wc-cancelled', 'wc-refunded', 'wc-checkout-draft' ];
+	const EXCLUDED_PAYMENT_COMPLETE_STATUSES = [ 'wc-failed', 'wc-cancelled', 'wc-refunded', 'wc-checkout-draft' ];
 
 	/**
 	 * Return order statuses which can be set after successful payment.

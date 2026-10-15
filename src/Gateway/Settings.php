@@ -16,23 +16,22 @@ defined( 'ABSPATH' ) || exit;
  */
 class Settings {
 	/**
+	 * Order statuses that make no sense after successful payment.
+	 *
+	 * @var array
+	 */
+	const EXCLUDED_PAYMENT_COMPLETE_STATUSES = [ 'wc-pending', 'wc-failed', 'wc-cancelled', 'wc-refunded', 'wc-checkout-draft' ];
+
+	/**
 	 * Return order statuses which can be set after successful payment.
 	 *
-	 * Statuses WooCommerce considers paid (Processing and Completed by default, plugins can add custom ones using
-	 * "woocommerce_order_is_paid_statuses" filter) and On hold for merchants checking payments manually.
+	 * All registered statuses, including custom ones added by plugins, except the ones that make no sense after
+	 * successful payment.
 	 *
 	 * @return array Status labels keyed by status with "wc-" prefix.
 	 */
 	public static function get_payment_complete_statuses() {
-		$paid_statuses = array_merge( wc_get_is_paid_statuses(), [ 'on-hold' ] );
-
-		return array_filter(
-			wc_get_order_statuses(),
-			function( $status ) use ( $paid_statuses ) {
-				return in_array( 0 === strpos( $status, 'wc-' ) ? substr( $status, 3 ) : $status, $paid_statuses, true );
-			},
-			ARRAY_FILTER_USE_KEY
-		);
+		return array_diff_key( wc_get_order_statuses(), array_flip( self::EXCLUDED_PAYMENT_COMPLETE_STATUSES ) );
 	}
 
 	/**

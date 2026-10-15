@@ -349,7 +349,7 @@ class IPN {
 		$order_id    = $order->get_id();
 		$paid_status = Data::get_settings( 'payed-order-status' );
 
-		// Ignore statuses not allowed after payment, could be saved before the setting was limited to them.
+		// Ignore statuses that make no sense after payment or are no longer registered, e.g. custom status plugin was removed.
 		if ( ! isset( Settings::get_payment_complete_statuses()[ $paid_status ] ) ) {
 			$paid_status = '';
 		}

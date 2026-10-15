@@ -57,7 +57,7 @@ For more installation options check the [official WordPress documentation](https
 * Show the reason of a failed refund and fix partial refunds under 1 EUR being marked as full refunds.
 * Fix fatal error on order pay page with invalid order ID.
 * Keep cart when customer cancels KEKS Pay payment or payment fails.
-* Validate secret keys in gateway settings and prevent Pending, Failed, Cancelled or Refunded as order status after successful payment.
+* Validate secret keys in gateway settings and prevent Failed, Cancelled or Refunded as order status after successful payment.
 * Use configured title, logo and test mode notice in block checkout.
 * Show KEKS Pay logo in WooCommerce admin payments list.
 * Support chillerlan/php-qrcode v4, v5 and v6 loaded by other plugins.

@@ -4,7 +4,7 @@ Tags: kekspay, woocommerce, gateway, payment
 Requires at least: 6.3
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 3.0.0
+Stable tag: 3.0.1
 License: GPL v3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -48,6 +48,9 @@ On a side note, this plugin is provided “as-is” and we don't currently provi
 For more installation options check the [official WordPress documentation](https://wordpress.org/support/article/managing-plugins/#manual-plugin-installation) about installing plugins.
 
 == Changelog ==
+
+= 3.0.1 =
+* Show notice that KEKS Pay 4.0.0 will require PHP 8.1 or newer on servers running older PHP versions.
 
 = 3.0.0 =
 * Ignore repeated or late payment notifications for already paid or refunded orders.

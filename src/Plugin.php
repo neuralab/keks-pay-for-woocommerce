@@ -46,6 +46,13 @@ final class Plugin {
 	const REQUIRED_PHP_VERSION = '7.4';
 
 	/**
+	 * Minimum PHP version that will be required starting with the next major plugin version.
+	 *
+	 * @var string
+	 */
+	const UPCOMING_REQUIRED_PHP_VERSION = '8.1';
+
+	/**
 	 * Minimum required WooCommerce version.
 	 *
 	 * @var string
@@ -102,6 +109,7 @@ final class Plugin {
 		add_action( 'admin_enqueue_scripts', [ $this, 'register_admin_script' ] );
 		add_action( 'wp_enqueue_scripts', [ $this, 'register_client_script' ] );
 		add_action( 'current_screen', [ $this, 'check_settings' ] );
+		add_action( 'current_screen', [ $this, 'check_upcoming_php_requirement' ] );
 		add_action( 'admin_init', [ $this, 'check_for_other_kekspay_gateways' ], 1 );
 		add_action( 'admin_init', [ Data::class, 'maybe_generate_auth_token' ] );
 		add_action( 'activated_plugin', [ self::class, 'set_kekspay_plugins_check_required' ] );
@@ -269,6 +277,38 @@ final class Plugin {
 	}
 
 	/**
+	 * Warn if the server's PHP version won't be supported by the next major plugin version.
+	 *
+	 * @return void
+	 */
+	public function check_upcoming_php_requirement() {
+		if ( version_compare( PHP_VERSION, self::UPCOMING_REQUIRED_PHP_VERSION, '>=' ) ) {
+			return;
+		}
+
+		// Show notice only on plugins and WooCommerce screens.
+		$screen     = get_current_screen();
+		$screen_ids = function_exists( 'wc_get_screen_ids' ) ? wc_get_screen_ids() : [];
+		if ( ! $screen || ! in_array( $screen->id, array_merge( $screen_ids, [ 'plugins', 'dashboard', 'update-core' ] ), true ) ) {
+			return;
+		}
+
+		self::admin_notice(
+			sprintf(
+				'<strong>%1$s</strong><br>%2$s',
+				esc_html__( 'KEKS Pay for WooCommerce uskoro će zahtijevati PHP 8.1+', 'keks-pay-for-woocommerce' ),
+				sprintf(
+					/* translators: %s: current PHP version. */
+					esc_html__( 'Vaša web trgovina trenutno koristi PHP %s. Počevši od verzije KEKS Pay 4.0.0, planirane za veljaču 2027., minimalna potrebna verzija bit će PHP 8.1. Kako biste nastavili primati buduća ažuriranja, molimo dogovorite se s pružateljem usluge hostinga oko nadogradnje PHP verzije na vašem poslužitelju.', 'keks-pay-for-woocommerce' ),
+					esc_html( PHP_VERSION )
+				)
+			),
+			'warning',
+			true
+		);
+	}
+
+	/**
 	 * Check if there are other KEKS Pay gateways using the same gateway ID and deactivate this plugin if so.
 	 *
 	 * @return void
@@ -332,16 +372,17 @@ final class Plugin {
 	/**
 	 * Add admin notice.
 	 *
-	 * @param string $notice Notice content.
-	 * @param string $type   Notice type.
+	 * @param string $notice      Notice content.
+	 * @param string $type        Notice type.
+	 * @param bool   $dismissible Whether the notice can be closed, it shows again on the next page load.
 	 *
 	 * @return void
 	 */
-	public static function admin_notice( $notice, $type = 'error' ) {
+	public static function admin_notice( $notice, $type = 'error', $dismissible = false ) {
 		add_action(
 			'admin_notices',
-			function() use ( $notice, $type ) {
-				printf( '<div class="notice notice-%2$s"><p>%1$s</p></div>', wp_kses_post( $notice ), esc_attr( $type ) );
+			function() use ( $notice, $type, $dismissible ) {
+				printf( '<div class="notice notice-%2$s%3$s"><p>%1$s</p></div>', wp_kses_post( $notice ), esc_attr( $type ), $dismissible ? ' is-dismissible' : '' );
 			}
 		);
 	}

@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v3 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: KEKS Pay for WooCommerce 3.0.0\n"
+"Project-Id-Version: KEKS Pay for WooCommerce 3.0.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/keks-pay-for-woocommerce\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-14T17:36:43+00:00\n"
+"POT-Creation-Date: 2026-10-28T16:02:51+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.10.0\n"
 "X-Domain: keks-pay-for-woocommerce\n"
@@ -84,77 +84,77 @@ msgid "Dogodila se greška pri povratu %s via KEKS Pay."
 msgstr ""
 
 #: src/Gateway/Block_Checkout.php:71
-#: src/Gateway/Payment_Gateway.php:153
-#: src/Plugin.php:255
+#: src/Gateway/Payment_Gateway.php:155
+#: src/Plugin.php:265
 msgid "KEKS Pay je trenutno u testom načinu rada, ne zaboravite ga ugasiti po završetku testiranja."
 msgstr ""
 
 #. translators: payment failed on checkout QR scanning
-#: src/Gateway/IPN.php:109
+#: src/Gateway/IPN.php:151
 msgid "Nešto je pošlo po zlu pri pokušaju naplate vaše narudžbe (#%d) putem KEKS Pay servisa, molimo pokušajte ponoviti narudžbu ili kontaktirajte administratora web trgovine za više informacija."
 msgstr ""
 
 #. translators: 1: paid amount, 2: order total
-#: src/Gateway/IPN.php:286
+#: src/Gateway/IPN.php:327
 msgid "KEKS Pay je naplatio %1$s, a iznos narudžbe je %2$s. Provjerite uplatu prije obrade narudžbe."
 msgstr ""
 
-#: src/Gateway/IPN.php:306
+#: src/Gateway/IPN.php:347
 msgid "Narudžba uspješno plaćena putem KEKS Pay aplikacije."
 msgstr ""
 
-#: src/Gateway/IPN.php:339
+#: src/Gateway/IPN.php:380
 msgid "Dogodila se greška pri naplati putem KEKS Pay aplikacije."
 msgstr ""
 
 #: src/Gateway/Payment_Gateway.php:33
-#: src/Gateway/Payment_Gateway.php:88
+#: src/Gateway/Payment_Gateway.php:90
 msgid "KEKS Pay"
 msgstr ""
 
 #: src/Gateway/Payment_Gateway.php:34
-#: src/Gateway/Payment_Gateway.php:147
+#: src/Gateway/Payment_Gateway.php:149
 msgid "Najbrže i bez naknada putem KEKS Pay aplikacije!"
 msgstr ""
 
 #. translators: %s: secret key field title
-#: src/Gateway/Payment_Gateway.php:122
+#: src/Gateway/Payment_Gateway.php:124
 msgid "%s nije spremljen: tajni ključ mora imati 16, 24 ili 32 znaka, a ključ od samo heksadecimalnih znakova (0-9, a-f) mora imati 24 znaka."
 msgstr ""
 
-#: src/Gateway/Payment_Gateway.php:180
+#: src/Gateway/Payment_Gateway.php:182
 msgid "Narudžba napravljena u testnom načinu rada!"
 msgstr ""
 
-#: src/Gateway/Payment_Gateway.php:202
+#: src/Gateway/Payment_Gateway.php:204
 #: src/Gateway/Sell.php:151
 msgid "Otvori KEKS Pay"
 msgstr ""
 
 #. translators: kekspay in-app icon
-#: src/Gateway/Payment_Gateway.php:204
+#: src/Gateway/Payment_Gateway.php:206
 msgid "Pritisni %s ikonicu"
 msgstr ""
 
 #. translators: kekspay in-app icon
-#: src/Gateway/Payment_Gateway.php:204
+#: src/Gateway/Payment_Gateway.php:206
 msgid "keks logo"
 msgstr ""
 
-#: src/Gateway/Payment_Gateway.php:205
+#: src/Gateway/Payment_Gateway.php:207
 msgid "Odaberi \"Skeniraj QR kȏd\""
 msgstr ""
 
-#: src/Gateway/Payment_Gateway.php:206
+#: src/Gateway/Payment_Gateway.php:208
 msgid "Skeniraj QR kȏd"
 msgstr ""
 
-#: src/Gateway/Payment_Gateway.php:212
+#: src/Gateway/Payment_Gateway.php:214
 msgid "Otkaži"
 msgstr ""
 
-#: src/Gateway/Payment_Gateway.php:231
-#: src/Gateway/Payment_Gateway.php:257
+#: src/Gateway/Payment_Gateway.php:233
+#: src/Gateway/Payment_Gateway.php:259
 msgid "Narudžba nije pronađena."
 msgstr ""
 
@@ -170,146 +170,155 @@ msgstr ""
 msgid "Dogodila se greška prilikom kreiranja poveznice za plaćanje putem KEKS Pay mobilne aplikacije za ovu narudžbu. Molimo rekreirajte narudžbu ili kontaktirajte vlasnika web stranice."
 msgstr ""
 
-#: src/Gateway/Settings.php:48
+#: src/Gateway/Settings.php:47
 msgid "Omogući KEKS Pay"
 msgstr ""
 
-#: src/Gateway/Settings.php:50
+#: src/Gateway/Settings.php:49
 msgid "Omogući KEKS Pay metodu plaćanja."
 msgstr ""
 
-#: src/Gateway/Settings.php:55
+#: src/Gateway/Settings.php:54
 msgid "Naslov"
 msgstr ""
 
-#: src/Gateway/Settings.php:57
+#: src/Gateway/Settings.php:56
 msgid "Naslov KEKS Pay metode plaćanja koji korisnik vidi na stranici za naplatu. Upišite: KEKS Pay."
 msgstr ""
 
-#: src/Gateway/Settings.php:58
+#: src/Gateway/Settings.php:57
 msgctxt "Title default value"
 msgid "KEKS Pay"
 msgstr ""
 
-#: src/Gateway/Settings.php:62
+#: src/Gateway/Settings.php:61
 msgid "Sigurnosni token"
 msgstr ""
 
-#: src/Gateway/Settings.php:67
+#: src/Gateway/Settings.php:66
 msgid "Podaci o Web trgovini"
 msgstr ""
 
-#: src/Gateway/Settings.php:72
+#: src/Gateway/Settings.php:71
 msgid "CID"
 msgstr ""
 
-#: src/Gateway/Settings.php:74
+#: src/Gateway/Settings.php:73
 msgid "Jedinstveni identifikator Web trgovine unutar KEKS Pay sustava. Bit će dodijeljen od strane KEKS Pay sustava."
 msgstr ""
 
-#: src/Gateway/Settings.php:80
+#: src/Gateway/Settings.php:79
 msgid "TID"
 msgstr ""
 
-#: src/Gateway/Settings.php:82
+#: src/Gateway/Settings.php:81
 msgid "Jedinstven identifikator za vrstu usluge unutar Web trgovine. Bit će dodijeljen od strane KEKS Pay sustava."
 msgstr ""
 
-#: src/Gateway/Settings.php:87
+#: src/Gateway/Settings.php:86
 msgid "Tajni ključ"
 msgstr ""
 
-#: src/Gateway/Settings.php:89
+#: src/Gateway/Settings.php:88
 msgid "Tajni ključ Web trgovine unutar KEKS Pay sustava. Bit će dodijeljen od strane KEKS Pay sustava."
 msgstr ""
 
-#: src/Gateway/Settings.php:94
+#: src/Gateway/Settings.php:93
 msgid "TEST CID"
 msgstr ""
 
-#: src/Gateway/Settings.php:96
-#: src/Gateway/Settings.php:103
+#: src/Gateway/Settings.php:95
+#: src/Gateway/Settings.php:102
 msgid "Jedinstven testni identifikator Web trgovine unutar KEKS Pay sustava. Bit će dodijeljen od strane KEKS Pay sustava."
 msgstr ""
 
-#: src/Gateway/Settings.php:101
+#: src/Gateway/Settings.php:100
 msgid "TEST TID"
 msgstr ""
 
-#: src/Gateway/Settings.php:108
+#: src/Gateway/Settings.php:107
 msgid "TEST Tajni ključ"
 msgstr ""
 
-#: src/Gateway/Settings.php:110
+#: src/Gateway/Settings.php:109
 msgid "Testni tajni ključ Web trgovine unutar KEKS Pay sustava. Bit će dodijeljen od strane KEKS Pay sustava."
 msgstr ""
 
-#: src/Gateway/Settings.php:115
+#: src/Gateway/Settings.php:114
 msgid "Dodatne postavke"
 msgstr ""
 
-#: src/Gateway/Settings.php:120
+#: src/Gateway/Settings.php:119
 msgid "Status plaćene narudžbe"
 msgstr ""
 
 #. translators: order status for payment complete
-#: src/Gateway/Settings.php:123
+#: src/Gateway/Settings.php:122
 msgid "Status narudžbe koji će biti postavljen nakon što KEKS Pay uspješno izvrši naplatu same narudžbe. (Zadani status je \"%s\")."
 msgstr ""
 
-#: src/Gateway/Settings.php:128
+#: src/Gateway/Settings.php:127
 msgid "Testni način rada"
 msgstr ""
 
-#: src/Gateway/Settings.php:130
+#: src/Gateway/Settings.php:129
 msgid "Uključi testni način rada."
 msgstr ""
 
-#: src/Gateway/Settings.php:131
+#: src/Gateway/Settings.php:130
 msgid "Način rada koji omogućava testiranje, ne zaboravite ga ugasiti po završetku testiranja."
 msgstr ""
 
-#: src/Gateway/Settings.php:136
+#: src/Gateway/Settings.php:135
 msgid "Zapisnik grešaka"
 msgstr ""
 
-#: src/Gateway/Settings.php:138
+#: src/Gateway/Settings.php:137
 msgid "Uključi zapisnik grešaka"
 msgstr ""
 
 #. translators: issue logger.
-#: src/Gateway/Settings.php:140
+#: src/Gateway/Settings.php:139
 msgid "Zapisuje procese i greške pri radu, zapisnik je pohranjen u: %s. Zapisnik može sadržavati osjetljive informacije. Preporučamo korištenje zapisnika samo u svrhe otkrivanja te otklanjanja grešaka te brisanje zapisnika po završetku."
 msgstr ""
 
 #. translators: minimum version dependancies
-#: src/Plugin.php:206
+#: src/Plugin.php:216
 msgid "Minimalna verzija %1$s je %2$s. Verzija koju trenutno koristite je %3$s. Molimo instalirajte minimalnu verziju %1$s ako želite koristiti KEKS Pay."
 msgstr ""
 
-#: src/Plugin.php:260
+#: src/Plugin.php:270
 msgid "KEKS Pay je trenutno onemogućen, molimo provjerite da su TID, CID i tajni ključ pravilno postavljeni."
 msgstr ""
 
-#: src/Plugin.php:265
+#: src/Plugin.php:275
 msgid "KEKS Pay je trenutno onemogućen, valuta web trgovine nije podržana. Podržane valute: \"EUR\"."
 msgstr ""
 
-#: src/Plugin.php:284
+#: src/Plugin.php:299
+msgid "KEKS Pay for WooCommerce uskoro će zahtijevati PHP 8.1+"
+msgstr ""
+
+#. translators: %s: current PHP version.
+#: src/Plugin.php:302
+msgid "Vaša web trgovina trenutno koristi PHP %s. Počevši od verzije KEKS Pay 4.0.0, planirane za veljaču 2027., minimalna potrebna verzija bit će PHP 8.1. Kako biste nastavili primati buduća ažuriranja, molimo dogovorite se s pružateljem usluge hostinga oko nadogradnje PHP verzije na vašem poslužitelju."
+msgstr ""
+
+#: src/Plugin.php:326
 msgid "Možete imati samo jedan KEKS Pay način plaćanja aktivan u isto vrijeme. Dodatak \"KEKS Pay for WooCommerce\" je deaktiviran."
 msgstr ""
 
 #. translators: 1. URL link.
-#: src/Plugin.php:357
+#: src/Plugin.php:400
 msgid "KEKS Pay zahtijeva WooCommerce dodatak instaliran i aktivan. Možete ga skinuti ovdje %s."
 msgstr ""
 
-#: src/Plugin.php:445
+#: src/Plugin.php:489
 msgid "Postavke"
 msgstr ""
 
 #. translators: token info.
-#: src/Utilities/Data.php:245
+#: src/Utilities/Data.php:238
 msgid "%1$s <br><br>Nakon pohrane unutar KEKS Pay sustava omogućava ovoj trgovini primanje obavijesti o stanju naplate. %2$s Kontakt %3$s"
 msgstr ""
 
